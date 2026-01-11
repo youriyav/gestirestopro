@@ -1,0 +1,67 @@
+@if (authService.isLoading()) {
+  <!-- Loading Spinner -->
+  <div class="flex items-center justify-center h-screen w-screen" style="background-color: #e6ebf0">
+    <div class="flex flex-col items-center gap-4">
+      <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
+      <p class="text-gray-600 text-lg">Chargement...</p>
+    </div>
+  </div>
+} @else {
+  <!-- Main Content -->
+  <div class="flex h-screen overflow-hidden" style="background-color: #e6ebf0">
+    <!-- Overlay pour mobile/tablette -->
+    @if (sidebarOpen()) {
+    <div
+      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+      (click)="closeSidebar()"
+    ></div>
+    }
+
+    <!-- Bouton hamburger pour mobile/tablette -->
+    <button
+      (click)="toggleSidebar()"
+      class="fixed top-2 left-2 z-[50] lg:hidden p-2 text-white rounded-lg transition-colors crud-menu-button"
+      [style.background-color]="'var(--crud-button-bg)'"
+      aria-label="Toggle sidebar"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M3 12H21M3 6H21M3 18H21"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    <!-- Sidebar à gauche - Responsive -->
+    <app-sidebar-component
+      [isOpen]="sidebarOpen()"
+      (closeSidebar)="closeSidebar()"
+    ></app-sidebar-component>
+
+    <!-- Contenu dynamique à droite avec Header -->
+    <main
+      class="flex-1 flex flex-col overflow-hidden"
+      style="background-color: #e6ebf0"
+    >
+      <!-- Header - Positionné après la sidebar -->
+      <app-header-component></app-header-component>
+
+      <!-- Contenu scrollable -->
+      <div class="flex-1 overflow-y-auto overflow-x-hidden pt-16">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+
+    <!-- Notification Component -->
+    <app-notification />
+  </div>
+}

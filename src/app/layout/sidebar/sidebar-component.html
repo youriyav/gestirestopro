@@ -1,0 +1,206 @@
+<aside
+  class="fixed lg:static h-screen flex flex-col 
+  text-white overflow-y-auto  z-50 transform 
+  transition-all duration-300 ease-in-out 
+  -translate-x-full lg:translate-x-0 bg-primary"
+  [class.translate-x-0]="isOpen()"
+  [class.-translate-x-full]="!isOpen()"
+  [class.w-64]="!isCollapsed()"
+  [class.w-20]="isCollapsed()"
+  [class.lg:w-64]="!isCollapsed()"
+  [class.lg:w-20]="isCollapsed()"
+>
+  <!-- Bouton de fermeture pour mobile/tablette -->
+  <button
+    (click)="closeSidebar.emit()"
+    class="lg:hidden absolute top-4 right-4 p-2 text-white rounded-lg transition-colors sidebar-hover z-10"
+    aria-label="Fermer le menu"
+  >
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M18 6L6 18M6 6L18 18"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </button>
+
+  <!-- Bouton pour masquer/afficher la sidebar (desktop) -->
+  <button
+    (click)="onToggleSidebar()"
+    class="hidden lg:flex absolute top-2 p-2
+     bg-white/10 hover:bg-white/20 
+     rounded-full transition-all z-10 
+     shadow-lg items-center justify-center "
+    aria-label="Masquer/Afficher le menu"
+    [class.right-2]="!isCollapsed()"
+    [class.left-2]="isCollapsed()"
+    [class.-right-3]="!isCollapsed()"
+  >
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      [class.rotate-180]="isCollapsed()"
+      class="transition-transform duration-300"
+    >
+      <path
+        d="M15 18L9 12L15 6"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </button>
+
+  <!-- Logo Section -->
+  <div
+    class="pt-12.5 pb-10 flex justify-center
+     border-b transition-all duration-300"
+    
+    [class.opacity-0]="isCollapsed()"
+    [class.invisible]="isCollapsed()"
+    [class.h-0]="isCollapsed()"
+    [class.pt-0]="isCollapsed()"
+    [class.pb-0]="isCollapsed()"
+  >
+    <img
+      src="/assets/img/gym-logo.jpg"
+      alt="gym-logo"
+      class="h-[105px]  transition-all duration-300"
+      [class.h-0]="isCollapsed()"
+    />
+  </div>
+
+  <!-- Navigation Menu -->
+  <nav class="flex-1 py-6 transition-all duration-300">
+    <ul class="space-y-2 px-4">
+      @for (item of filteredMenuItems(); track item.label) {
+      <li>
+        <a
+          [routerLink]="item.submenu ? null : item.route"
+          [routerLinkActive]="item.submenu ? '' : 'bg-white/10'"
+          [routerLinkActiveOptions]="{exact: true}"
+          [class.text-[#C8997E]]="isActiveRoute(item.route)"
+          [class.text-gray-300]="!isActiveRoute(item.route)"
+          class="flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+          (click)="item.submenu ? toggleSubmenu(item.label, $event) : onLinkClick()"
+          [class.justify-center]="isCollapsed()"
+        >
+          <div class="flex items-center gap-3" [class.gap-0]="isCollapsed()">
+            @if (item.icon) {
+              <span class="w-6 h-6">
+                <ng-container *ngComponentOutlet="item.icon">
+                </ng-container>
+              </span>
+            }
+            <span
+              class="text-[16px] font-medium transition-all duration-300"
+              [class.opacity-0]="isCollapsed()"
+              [class.w-0]="isCollapsed()"
+              [class.overflow-hidden]="isCollapsed()"
+              >{{ item.label }}</span
+            >
+          </div>
+          @if (item.hasArrow && !isCollapsed()) {
+          <svg
+            class="w-4 h-4 transition-transform duration-200"
+            [class.rotate-90]="item.submenu && isSubmenuExpanded(item.label)"
+            fill="none"
+            [attr.stroke]="isActiveRoute(item.route) ? 'var(--sidebar-accent)' : 'currentColor'"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+          }
+        </a>
+
+        @if (item.submenu && isSubmenuExpanded(item.label) && !isCollapsed()) {
+        <ul class="mt-2 ml-4 space-y-1">
+          @for (subitem of item.submenu; track subitem.label) {
+          <li>
+            <a
+              [routerLink]="subitem.route"
+              routerLinkActive="bg-white/10 text-[#C8997E]"
+              [routerLinkActiveOptions]="{exact: false}"
+              class="flex items-center px-4 py-2 text-sm rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-gray-300 hover:text-white"
+              (click)="onLinkClick()"
+            >
+              {{ subitem.label }}
+            </a>
+          </li>
+          }
+        </ul>
+        }
+      </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- User Profile Section -->
+  <div
+    class="p-4 border-t transition-all duration-300"
+    [style.border-color]="'var(--sidebar-border)'"
+  >
+    <div
+      class="flex items-center 
+      justify-between px-4 py-3 
+      rounded-lg hover:bg-white/5 
+      transition-colors 
+      hover:cursor-pointer
+      
+      "
+      [class.justify-center]="isCollapsed()"
+      role="button"
+      tabindex="0"
+      (click)="onLogout()"
+    >
+      <div class="flex items-center gap-3" 
+      [class.gap-0]="isCollapsed()">
+        <div
+          class="w-10 h-10 rounded-full flex items-center justify-center
+           shrink-0"
+          [style.background-color]="'var(--sidebar-accent)'"
+        >
+          <span class="text-white font-semibold text-sm"
+            >{{ getUserInitials() }}</span
+          >
+        </div>
+        <div
+          [class.opacity-0]="isCollapsed()"
+          [class.w-0]="isCollapsed()"
+          [class.overflow-hidden]="isCollapsed()"
+          class="transition-all duration-300  max-w-2.5  overflow-hidden"
+        >
+          <p class="text-sm font-medium whitespace-nowrap ">
+            {{ getUserDisplayName() }}
+          </p>
+          <p class="text-xs text-gray-400 whitespace-nowrap">
+            {{ getUserRole() }}
+          </p>
+        </div>
+      </div>
+      @if (!isCollapsed()) {
+        <span class="w-6 h-6 text-error">
+          <ng-container *ngComponentOutlet="LogoutIcon"></ng-container>
+        </span>
+      } 
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,17 @@
+/* Styles pour le sidebar utilisant les variables CSS */
+.sidebar-hover:hover {
+  background-color: var(--sidebar-hover) !important;
+}
+
+.sidebar-link-active {
+  color: var(--sidebar-text-active) !important;
+  background-color: var(--sidebar-active-bg) !important;
+}
+
+.sidebar-link-inactive {
+  color: var(--sidebar-text-inactive) !important;
+}
+
+.sidebar-link-inactive:hover {
+  background-color: var(--sidebar-hover) !important;
+}

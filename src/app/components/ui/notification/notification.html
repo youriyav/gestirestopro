@@ -1,0 +1,21 @@
+<div class="fixed top-4 right-4 z-50 flex flex-col gap-2">
+  @for (notification of notificationService.notifications(); track notification.id) {
+    <div
+      class="min-w-80 p-4 rounded-lg border shadow-lg flex items-start gap-3 animate-slide-in-right"
+      [ngClass]="getColorClasses(notification.type)"
+    >
+      <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getIcon(notification.type)"/>
+      </svg>
+      <p class="flex-1 text-sm font-medium">{{ notification.message }}</p>
+      <button
+        (click)="remove(notification.id)"
+        class="flex-shrink-0 p-1 hover:bg-black/10 rounded transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  }
+</div>
