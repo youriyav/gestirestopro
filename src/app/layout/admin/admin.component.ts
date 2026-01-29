@@ -4,11 +4,10 @@ import { SidebarComponent } from '../sidebar/sidebar-component';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '@app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { NotificationComponent } from '@app/components/ui/notification/notification';
 
 @Component({
   selector: 'app-admin',
-  imports: [HeaderComponent,SidebarComponent,RouterOutlet,CommonModule,NotificationComponent],
+  imports: [HeaderComponent,SidebarComponent,RouterOutlet,CommonModule,],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
