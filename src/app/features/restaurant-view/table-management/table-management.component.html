@@ -1,0 +1,446 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <!-- En-tête -->
+  <div class="flex items-end gap-4 flex-wrap justify-between mb-6">
+    <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Gestion des tables</h1>
+    <div class="flex items-center gap-2 flex-wrap">
+      <input
+        type="search"
+        [value]="query()"
+        (input)="onSearchInput($event)"
+        placeholder="Rechercher une table…"
+        class="w-64 p-3 rounded-xl border border-menu-cream-2 bg-white"
+      />
+      <button
+        type="button"
+        (click)="openCreateEmplacement()"
+        class="font-semibold text-menu-ink border border-menu-cream-2 bg-white hover:bg-menu-cream-2 px-5 py-2.5 rounded-full transition-colors"
+      >
+        + Emplacement
+      </button>
+      <button
+        type="button"
+        (click)="openCreateTable()"
+        class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors"
+      >
+        + Nouvelle table
+      </button>
+    </div>
+  </div>
+
+  <!-- Bandeau de chiffres -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-success-bg text-menu-success flex items-center justify-center shrink-0">
+        <app-location-icon />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Total emplacements</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ stats().emplacements }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-trial-bg text-menu-trial flex items-center justify-center shrink-0">
+        <app-restaurant-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Total tables</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ stats().tables }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-nile-bg text-menu-nile flex items-center justify-center shrink-0">
+        <app-chart-bar-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Tables occupées</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ stats().occupied }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="text-menu-ink-soft">Chargement…</p>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
+      <!-- Colonne emplacements -->
+      <aside class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+        <div class="flex items-baseline justify-between px-4 pt-4 pb-3">
+          <h2 class="font-menu-heading font-bold text-menu-ink text-sm uppercase tracking-wide">Emplacements</h2>
+          <span class="text-xs text-menu-ink-soft">{{ emplacements().length }}</span>
+        </div>
+        <ul>
+          <li
+            class="flex items-center border-t border-menu-cream-2"
+            [class.bg-menu-cream-2]="!selectedEmplacementId() && !query()"
+          >
+            <button
+              type="button"
+              (click)="selectEmplacement(null)"
+              class="flex-1 min-w-0 flex items-center gap-3 py-3 px-3 border-l-[3px] text-left"
+              [class.border-menu-saffron]="!selectedEmplacementId() && !query()"
+              [class.border-transparent]="!(!selectedEmplacementId() && !query())"
+            >
+              <span class="flex-1 min-w-0 truncate font-menu-heading font-bold text-sm text-menu-ink">Toutes les tables</span>
+              <span class="text-xs text-menu-ink-soft tabular-nums">{{ tables().length }}</span>
+            </button>
+          </li>
+          @for (emplacement of emplacements(); track emplacement.id) {
+            <li
+              class="group flex items-center gap-1 border-t border-menu-cream-2 pr-2"
+              [class.bg-menu-cream-2]="selectedEmplacementId() === emplacement.id && !query()"
+            >
+              <button
+                type="button"
+                (click)="selectEmplacement(emplacement)"
+                class="flex-1 min-w-0 flex items-center gap-3 py-3 px-3 border-l-[3px] text-left"
+                [class.border-menu-saffron]="selectedEmplacementId() === emplacement.id && !query()"
+                [class.border-transparent]="!(selectedEmplacementId() === emplacement.id && !query())"
+              >
+                <span class="flex-1 min-w-0 truncate font-menu-heading font-bold text-sm text-menu-ink">{{ emplacement.name }}</span>
+                <span class="text-xs text-menu-ink-soft tabular-nums">{{ tableCount(emplacement.id) }}</span>
+              </button>
+              <span class="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  (click)="moveEmplacement(emplacement, -1)"
+                  [disabled]="isFirstEmplacement(emplacement)"
+                  class="p-1 text-menu-ink-soft hover:text-menu-ink disabled:opacity-30"
+                  aria-label="Monter"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  (click)="moveEmplacement(emplacement, 1)"
+                  [disabled]="isLastEmplacement(emplacement)"
+                  class="p-1 text-menu-ink-soft hover:text-menu-ink disabled:opacity-30"
+                  aria-label="Descendre"
+                >
+                  ↓
+                </button>
+                <button type="button" (click)="openEditEmplacement(emplacement)" title="Modifier" class="p-1 text-menu-saffron hover:text-menu-saffron-deep">
+                  <app-pencil-icon />
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+        <div class="border-t border-menu-cream-2 px-4 py-3">
+          <button type="button" (click)="openCreateEmplacement()" class="text-sm font-semibold text-menu-saffron hover:underline">
+            + Ajouter un emplacement
+          </button>
+        </div>
+      </aside>
+
+      <!-- Panneau tables -->
+      <section class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+        <div class="flex items-center gap-4 flex-wrap px-6 py-4 border-b border-menu-cream-2">
+          <h2 class="font-menu-heading font-bold text-menu-ink text-lg">{{ panelTitle() }}</h2>
+          <span class="text-sm text-menu-ink-soft">
+            {{ filteredTables().length }} {{ filteredTables().length === 1 ? 'table' : 'tables' }}
+          </span>
+          <span class="flex-1"></span>
+          <div class="flex rounded-full border border-menu-cream-2 overflow-hidden text-sm">
+            <button
+              type="button"
+              (click)="setEtatFilter('all')"
+              class="px-3 py-1.5 transition-colors"
+              [class.bg-menu-saffron]="etatFilter() === 'all'"
+              [class.text-white]="etatFilter() === 'all'"
+              [class.text-menu-ink-soft]="etatFilter() !== 'all'"
+            >
+              Tous
+            </button>
+            <button
+              type="button"
+              (click)="setEtatFilter(TABLE_ETAT.LIBRE)"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="etatFilter() === TABLE_ETAT.LIBRE"
+              [class.text-white]="etatFilter() === TABLE_ETAT.LIBRE"
+              [class.text-menu-ink-soft]="etatFilter() !== TABLE_ETAT.LIBRE"
+            >
+              Libre
+            </button>
+            <button
+              type="button"
+              (click)="setEtatFilter(TABLE_ETAT.OCCUPEE)"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="etatFilter() === TABLE_ETAT.OCCUPEE"
+              [class.text-white]="etatFilter() === TABLE_ETAT.OCCUPEE"
+              [class.text-menu-ink-soft]="etatFilter() !== TABLE_ETAT.OCCUPEE"
+            >
+              Occupée
+            </button>
+            <button
+              type="button"
+              (click)="setEtatFilter(TABLE_ETAT.RESERVEE)"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="etatFilter() === TABLE_ETAT.RESERVEE"
+              [class.text-white]="etatFilter() === TABLE_ETAT.RESERVEE"
+              [class.text-menu-ink-soft]="etatFilter() !== TABLE_ETAT.RESERVEE"
+            >
+              Réservée
+            </button>
+            <button
+              type="button"
+              (click)="setEtatFilter(TABLE_ETAT.ADDITION)"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="etatFilter() === TABLE_ETAT.ADDITION"
+              [class.text-white]="etatFilter() === TABLE_ETAT.ADDITION"
+              [class.text-menu-ink-soft]="etatFilter() !== TABLE_ETAT.ADDITION"
+            >
+              Addition
+            </button>
+          </div>
+          <div class="flex rounded-full border border-menu-cream-2 overflow-hidden text-sm">
+            <button
+              type="button"
+              (click)="setView('list')"
+              class="px-3 py-1.5 transition-colors"
+              [class.bg-menu-saffron]="view() === 'list'"
+              [class.text-white]="view() === 'list'"
+              [class.text-menu-ink-soft]="view() !== 'list'"
+            >
+              Liste
+            </button>
+            <button
+              type="button"
+              (click)="setView('grid')"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="view() === 'grid'"
+              [class.text-white]="view() === 'grid'"
+              [class.text-menu-ink-soft]="view() !== 'grid'"
+            >
+              Grille
+            </button>
+          </div>
+        </div>
+
+        @if (filteredTables().length === 0) {
+          <div class="p-8 text-left">
+            <p class="font-menu-heading font-bold text-menu-ink text-lg">Aucune table ne correspond</p>
+            <p class="text-sm text-menu-ink-soft mt-1">Modifiez la recherche ou le filtre d'état.</p>
+          </div>
+        } @else if (view() === 'list') {
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs uppercase tracking-wide text-menu-ink-soft border-b border-menu-cream-2">
+                <th class="px-6 py-3 font-medium">Table</th>
+                <th class="px-3 py-3 font-medium">Emplacement</th>
+                <th class="px-3 py-3 font-medium">Capacité</th>
+                <th class="px-3 py-3 font-medium">État</th>
+                <th class="px-3 py-3 font-medium">Personnel</th>
+                <th class="px-6 py-3 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (table of filteredTables(); track table.id) {
+                <tr class="group border-b border-menu-cream-2">
+                  <td class="px-6 py-3">
+                    <p class="truncate font-menu-heading font-bold text-menu-ink">{{ table.nom }}</p>
+                  </td>
+                  <td class="px-3 py-3 text-menu-ink-soft">{{ table.emplacement?.name || '—' }}</td>
+                  <td class="px-3 py-3 text-menu-ink-soft">{{ table.capacite }}</td>
+                  <td class="px-3 py-3">
+                    <span
+                      class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full"
+                      [class.bg-menu-success-bg]="table.etat === TABLE_ETAT.LIBRE"
+                      [class.text-menu-success]="table.etat === TABLE_ETAT.LIBRE"
+                      [class.bg-menu-trial-bg]="table.etat === TABLE_ETAT.OCCUPEE"
+                      [class.text-menu-trial]="table.etat === TABLE_ETAT.OCCUPEE"
+                      [class.bg-menu-error-bg]="table.etat === TABLE_ETAT.ADDITION"
+                      [class.text-menu-error]="table.etat === TABLE_ETAT.ADDITION"
+                      [class.bg-menu-nile-bg]="table.etat === TABLE_ETAT.RESERVEE"
+                      [class.text-menu-nile]="table.etat === TABLE_ETAT.RESERVEE"
+                    >
+                      {{ etatLabel(table.etat) }}
+                    </span>
+                  </td>
+                  <td class="px-3 py-3">
+                    @if (table.assignedStaff) {
+                      <span class="flex items-center gap-1.5" [title]="staffName(table.assignedStaff)">
+                        <span class="w-6 h-6 rounded-full bg-menu-cassis text-white text-[10px] font-semibold flex items-center justify-center">
+                          {{ staffInitials(table.assignedStaff) }}
+                        </span>
+                        <span class="text-xs text-menu-ink-soft">{{ table.assignedStaff.first_name }}</span>
+                      </span>
+                    } @else {
+                      <span class="text-menu-ink-soft">—</span>
+                    }
+                  </td>
+                  <td class="px-6 py-3 text-right">
+                    <span class="inline-flex gap-2">
+                      <button type="button" (click)="openEditTable(table)" title="Modifier" class="p-1 text-menu-saffron hover:text-menu-saffron-deep">
+                        <app-pencil-icon />
+                      </button>
+                      <button type="button" (click)="requestDeleteTable(table)" title="Supprimer" class="p-1 text-menu-error hover:text-menu-error">
+                        <app-trash-icon />
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+            @for (table of filteredTables(); track table.id) {
+              <div class="rounded-xl border border-menu-cream-2 overflow-hidden p-3 flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                  <p class="font-menu-heading font-bold text-menu-ink text-sm">{{ table.nom }}</p>
+                  <span
+                    class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full"
+                    [class.bg-menu-success-bg]="table.etat === TABLE_ETAT.LIBRE"
+                    [class.text-menu-success]="table.etat === TABLE_ETAT.LIBRE"
+                    [class.bg-menu-trial-bg]="table.etat === TABLE_ETAT.OCCUPEE"
+                    [class.text-menu-trial]="table.etat === TABLE_ETAT.OCCUPEE"
+                    [class.bg-menu-error-bg]="table.etat === TABLE_ETAT.ADDITION"
+                    [class.text-menu-error]="table.etat === TABLE_ETAT.ADDITION"
+                    [class.bg-menu-nile-bg]="table.etat === TABLE_ETAT.RESERVEE"
+                    [class.text-menu-nile]="table.etat === TABLE_ETAT.RESERVEE"
+                  >
+                    {{ etatLabel(table.etat) }}
+                  </span>
+                </div>
+                <p class="text-xs text-menu-ink-soft">{{ table.emplacement?.name || '—' }} · {{ table.capacite }} couverts</p>
+                <div class="flex items-center justify-between border-t border-menu-cream-2 pt-2">
+                  @if (table.assignedStaff) {
+                    <span class="flex items-center gap-1.5" [title]="staffName(table.assignedStaff)">
+                      <span class="w-6 h-6 rounded-full bg-menu-cassis text-white text-[10px] font-semibold flex items-center justify-center">
+                        {{ staffInitials(table.assignedStaff) }}
+                      </span>
+                      <span class="text-xs text-menu-ink-soft">{{ table.assignedStaff.first_name }}</span>
+                    </span>
+                  } @else {
+                    <span class="text-xs text-menu-ink-soft">Aucun personnel</span>
+                  }
+                  <button type="button" (click)="openEditTable(table)" class="text-xs font-semibold text-menu-saffron hover:underline">
+                    Modifier
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>
+
+<!-- Dialogue table -->
+@if (tableDialog()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeTableDialog()">
+    <div
+      class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col font-menu-body"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2 shrink-0">
+        <h3 class="font-menu-heading font-bold text-lg text-menu-ink">
+          {{ tableDialog()?.mode === 'edit' ? 'Modifier la table' : 'Nouvelle table' }}
+        </h3>
+        <button type="button" (click)="closeTableDialog()" class="text-menu-ink-soft hover:text-menu-ink text-2xl leading-none px-1" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <form [formGroup]="tableForm" (ngSubmit)="submitTable()" class="flex flex-col overflow-y-auto">
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Nom de la table</label>
+            <input formControlName="nom" class="p-3 rounded-xl border border-menu-cream-2" placeholder="T1" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Emplacement</label>
+            <select formControlName="emplacementId" class="p-3 rounded-xl border border-menu-cream-2 bg-white">
+              <option value="">Aucun</option>
+              @for (emplacement of emplacements(); track emplacement.id) {
+                <option [value]="emplacement.id">{{ emplacement.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Capacité</label>
+            <input type="number" min="1" formControlName="capacite" class="p-3 rounded-xl border border-menu-cream-2" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">État</label>
+            <select formControlName="etat" class="p-3 rounded-xl border border-menu-cream-2 bg-white">
+              <option [value]="TABLE_ETAT.LIBRE">Libre</option>
+              <option [value]="TABLE_ETAT.OCCUPEE">Occupée</option>
+              <option [value]="TABLE_ETAT.ADDITION">Addition</option>
+              <option [value]="TABLE_ETAT.RESERVEE">Réservée</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <label class="text-sm font-medium text-menu-ink">Serveur assigné</label>
+            <select formControlName="assignedStaffId" class="p-3 rounded-xl border border-menu-cream-2 bg-white">
+              <option value="">Aucun</option>
+              @for (member of staff(); track member.id) {
+                <option [value]="member.id">{{ member.first_name }} {{ member.last_name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 px-6 py-4 border-t border-menu-cream-2 shrink-0">
+          <span class="flex-1"></span>
+          <button type="button" (click)="closeTableDialog()" class="px-4 py-2 text-menu-ink-soft hover:text-menu-ink">Annuler</button>
+          <button
+            type="submit"
+            [disabled]="savingTable()"
+            class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+          >
+            {{ savingTable() ? 'Enregistrement...' : 'Enregistrer la table' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Dialogue emplacement -->
+@if (emplacementDialog()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeEmplacementDialog()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md font-menu-body" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2">
+        <h3 class="font-menu-heading font-bold text-lg text-menu-ink">
+          {{ emplacementDialog()?.mode === 'edit' ? "Modifier l'emplacement" : 'Nouvel emplacement' }}
+        </h3>
+        <button type="button" (click)="closeEmplacementDialog()" class="text-menu-ink-soft hover:text-menu-ink text-2xl leading-none px-1" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <form [formGroup]="emplacementForm" (ngSubmit)="submitEmplacement()">
+        <div class="p-6 flex flex-col gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Nom</label>
+            <input formControlName="name" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Terrasse" />
+          </div>
+        </div>
+        <div class="flex items-center gap-3 px-6 py-4 border-t border-menu-cream-2">
+          @if (emplacementDialog()?.mode === 'edit') {
+            <button type="button" (click)="deleteEmplacementFromDialog()" class="text-sm font-semibold text-menu-error hover:underline">
+              Supprimer l'emplacement
+            </button>
+          }
+          <span class="flex-1"></span>
+          <button type="button" (click)="closeEmplacementDialog()" class="px-4 py-2 text-menu-ink-soft hover:text-menu-ink">Annuler</button>
+          <button
+            type="submit"
+            [disabled]="savingEmplacement()"
+            class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+          >
+            {{ savingEmplacement() ? 'Enregistrement...' : (emplacementDialog()?.mode === 'edit' ? 'Mettre à jour' : "Créer l'emplacement") }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<app-delete-confirmation-modal
+  [isOpen]="!!pendingDelete()"
+  [title]="deleteDialogTitle()"
+  [message]="'Voulez-vous vraiment supprimer « ' + (pendingDelete()?.label ?? '') + ' » ?'"
+  [isDeleting]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>

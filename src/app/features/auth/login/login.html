@@ -1,91 +1,160 @@
-<section class="bg-neutral-50 
-min-h-screen flex box-border 
-justify-center items-center">
-    <div class=" rounded-2xl flex max-w-3xl  
-    items-center bg-gray-50 border border-primary overflow-auto">
-        <div class="md:w-1/2 px-8 
-        bg-gray-50 h-full  
-        ">
-            <h2 class="font-bold text-3xl text-[#002D74]">Se connecter</h2>
-            <p class="text-sm mt-4 text-[#002D74]"></p>
-
-            <form [formGroup]="loginForm" class="flex flex-col gap-4">
-                @if (errorMessage()) {
-                    <div class="p-3 rounded-xl bg-red-100 border border-red-400 text-red-700 text-sm">
-                        {{ errorMessage() }}
-                    </div>
-                }
-                <input class="p-2 mt-8 rounded-xl border"
-                type="email" formControlName="email" placeholder="Email">
-                <div class="relative">
-                    <input class="p-2 rounded-xl border
-                     w-full" type="password"
-                     formControlName="password" id="password" placeholder="Password">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" id="togglePassword"
-                        class="bi bi-eye absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer z-20 opacity-100"
-                        viewBox="0 0 16 16">
-                        <path
-                            d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z">
-                        </path>
-                        <path
-                            d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z">
-                        </path>
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-eye-slash-fill absolute top-1/2 right-3 -z-1 -translate-y-1/2 cursor-pointer hidden"
-                        id="mama" viewBox="0 0 16 16">
-                        <path
-                            d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z">
-                        </path>
-                        <path
-                            d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z">
-                        </path>
-                    </svg>
-                </div>
-                <div class="w-full ">
-                     <app-primary-button class="w-full"
-                  [label]="authService.isLoading() ? 'Connexion...' : 'Se connecter'"
-                  [disabled]="authService.isLoading()"
-                  (onClick)="handleLogin($event)">
-                </app-primary-button>
-                </div>
-            </form>
-            <!--div class="mt-6  items-center text-gray-100">
-                <hr class="border-gray-300">
-                <p class="text-center text-sm">OR</p>
-                <hr class="border-gray-300">
-            </div>
-            <button class="bg-white border py-2 w-full rounded-xl mt-5 flex justify-center items-center text-sm hover:scale-105 duration-300 hover:bg-[#60a8bc4f] font-medium">
-                    <svg class="mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="25px">
-                        <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path>
-                        <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path>
-                        <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path>
-                        <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
-                    </svg>
-
-                    Login with Google
-                </button-->
-            <div class="mt-10 text-sm  py-5
-             playfair tooltip
-
-             ">
-             <span class="hover:cursor-pointer hover:underline"
-                   (click)="openForgotPasswordModal()">
-                Mot de passe oublié?
-            </span>
-            </div>
-
-            <!--div class="mt-4 text-sm flex justify-between items-center container-mr">
-                <p class="mr-3 md:mr-0 ">If you don't have an account..</p>
-                <button class="hover:border register text-white bg-[#002D74] hover:border-gray-400 rounded-xl py-2 px-5 hover:scale-110 hover:bg-[#002c7424] font-semibold duration-300">Register</button>
-            </div-->
+<div class="flex min-h-screen">
+    <!-- Panneau de marque (masqué sous ~900px) -->
+    <div class="hidden min-[901px]:flex flex-col justify-between w-[44%] bg-menu-ink text-menu-cream px-10 py-10">
+        <div class="flex items-center gap-2">
+            <img src="assets/img/logo.png" alt="GestiRestoPro" class="w-10 h-10 object-contain shrink-0" />
+            <span class="font-menu-heading font-extrabold text-lg text-white">GestiRestoPro</span>
         </div>
-        <div class="md:block hidden w-1/2 ">
-            <img class="max-h-400" src="assets/img/logo.jpg" alt="login form image">
+
+        <div class="flex flex-col gap-6 max-w-sm">
+            <div>
+                <h1 class="font-menu-heading text-3xl font-extrabold text-white leading-tight">
+                    Votre restaurant, toujours à portée de main.
+                </h1>
+                <p class="font-menu-body text-sm text-menu-cream/70 mt-4">
+                    Menu, salle, caisse et pilotage réunis dans une seule application. Connectez-vous pour
+                    retrouver votre tableau de bord.
+                </p>
+            </div>
+
+            <!-- Mockup téléphone décoratif (aperçu, pas de données réelles) -->
+            <div class="login-phone-frame">
+                <div class="login-phone-frame__screen">
+                    <span class="inline-block self-start font-menu-body text-[10px] font-semibold bg-menu-ink text-white px-2 py-1 rounded-full mb-3">
+                        Propriétaire
+                    </span>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="bg-white rounded-lg p-2">
+                            <p class="font-menu-body text-[9px] text-menu-ink-soft">Chiffre d'affaires</p>
+                            <p class="font-menu-mono text-xs font-bold text-menu-ink">187 300</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-2">
+                            <p class="font-menu-body text-[9px] text-menu-ink-soft">Commandes</p>
+                            <p class="font-menu-mono text-xs font-bold text-menu-ink">24</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        <div class="h-2 rounded-full bg-menu-cream-2 overflow-hidden"><div class="h-full bg-menu-saffron" style="width: 70%"></div></div>
+                        <div class="h-2 rounded-full bg-menu-cream-2 overflow-hidden"><div class="h-full bg-menu-saffron" style="width: 45%"></div></div>
+                        <div class="h-2 rounded-full bg-menu-cream-2 overflow-hidden"><div class="h-full bg-menu-saffron" style="width: 25%"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Témoignage : emplacement réservé -->
+        <div class="border-t border-white/10 pt-6">
+            <div class="flex gap-0.5 text-menu-saffron mb-2">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.287-3.958z"/></svg>
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.287-3.958z"/></svg>
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.287-3.958z"/></svg>
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.287-3.958z"/></svg>
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.538 1.118l-3.367-2.446a1 1 0 00-1.176 0l-3.367 2.446c-.783.57-1.838-.196-1.538-1.118l1.287-3.957a1 1 0 00-.363-1.118L2.062 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.287-3.958z"/></svg>
+            </div>
+            <p class="font-menu-body text-sm text-menu-cream/85 italic">
+                "Emplacement pour un témoignage du restaurant partenaire pilote."
+            </p>
+            <p class="font-menu-body text-xs text-menu-cream/50 mt-2">— [Nom], [Restaurant], Bangui</p>
         </div>
     </div>
 
-    @if (showForgotPasswordModal()) {
-        <app-forget-password (onClose)="closeForgotPasswordModal()"></app-forget-password>
-    }
-</section>
+    <!-- Formulaire -->
+    <div class="flex-1 flex items-center justify-center bg-menu-cream px-6 py-12">
+        <div class="w-full max-w-[380px]">
+            <p class="font-menu-body text-sm text-menu-ink-soft mb-1">Bienvenue</p>
+            <h2 class="font-menu-heading text-2xl font-extrabold text-menu-ink">Connexion à votre espace</h2>
+            <p class="font-menu-body text-sm text-menu-ink-soft mt-2 mb-6">
+                Entrez votre email et votre mot de passe pour accéder à votre tableau de bord.
+            </p>
+
+            <form [formGroup]="loginForm" class="flex flex-col gap-4">
+                @if (errorMessage()) {
+                    <div class="p-3 rounded-xl bg-menu-error-bg text-menu-error text-sm font-menu-body">
+                        {{ errorMessage() }}
+                    </div>
+                }
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="font-menu-body text-sm font-medium text-menu-ink" for="email">Adresse email</label>
+                    <input
+                        id="email"
+                        type="email"
+                        formControlName="email"
+                        placeholder="vous@restaurant.com"
+                        class="font-menu-body p-3 rounded-xl border border-menu-cream-2 bg-white text-menu-ink focus:outline-none focus:ring-2 focus:ring-menu-saffron/30 focus:border-menu-saffron transition-colors"
+                    >
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="font-menu-body text-sm font-medium text-menu-ink" for="password">Mot de passe</label>
+                        <span
+                            class="font-menu-body text-xs font-semibold text-menu-saffron-deep hover:underline cursor-pointer"
+                            (click)="openForgotPasswordModal()"
+                        >
+                            Mot de passe oublié ?
+                        </span>
+                    </div>
+                    <div class="relative">
+                        <input
+                            id="password"
+                            [type]="showPassword() ? 'text' : 'password'"
+                            formControlName="password"
+                            placeholder="••••••••"
+                            (keydown.enter)="handleLogin($event)"
+                            class="font-menu-body p-3 pr-11 rounded-xl border border-menu-cream-2 bg-white text-menu-ink w-full focus:outline-none focus:ring-2 focus:ring-menu-saffron/30 focus:border-menu-saffron transition-colors"
+                        >
+                        <button
+                            type="button"
+                            (click)="togglePasswordVisibility()"
+                            aria-label="Afficher ou masquer le mot de passe"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-menu-ink-soft hover:text-menu-ink"
+                        >
+                            @if (showPassword()) {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="m10.79 12.912-1.614-1.615a3.5 3.5 0 0 1-4.474-4.474l-2.06-2.06C.938 6.278 0 8 0 8s3 5.5 8 5.5a7.029 7.029 0 0 0 2.79-.588zM5.21 3.088A7.028 7.028 0 0 1 8 2.5c5 0 8 5.5 8 5.5s-.939 1.721-2.641 3.238l-2.062-2.062a3.5 3.5 0 0 0-4.474-4.474L5.21 3.089z"></path>
+                                    <path d="M5.525 7.646a2.5 2.5 0 0 0 2.829 2.829l-2.83-2.829zm4.95.708-2.829-2.83a2.5 2.5 0 0 1 2.829 2.829zm3.171 6-12-12 .708-.708 12 12-.708.708z"></path>
+                                </svg>
+                            } @else {
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"></path>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"></path>
+                                </svg>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                <label class="flex items-center gap-2 font-menu-body text-sm text-menu-ink-soft cursor-pointer">
+                    <input type="checkbox" formControlName="rememberMe" class="w-4 h-4 rounded border-menu-cream-2 accent-menu-saffron focus:ring-menu-saffron/30">
+                    Se souvenir de moi
+                </label>
+
+                <button
+                    type="button"
+                    (click)="handleLogin($event)"
+                    [disabled]="authService.isLoading()"
+                    class="w-full font-menu-body font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep transition-colors py-3.5 rounded-xl shadow-md shadow-menu-saffron/20 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                    {{ authService.isLoading() ? 'Connexion...' : 'Se connecter' }}
+                </button>
+            </form>
+
+            <p class="font-menu-body text-xs text-menu-ink-soft text-center mt-5">
+                En continuant, vous acceptez les
+                <!-- TODO: lien vers une vraie page de conditions d'utilisation une fois qu'elle existera -->
+                <a href="#" class="underline font-medium">conditions d'utilisation</a> de GestiRestoPro.
+            </p>
+
+            <p class="font-menu-body text-sm text-menu-ink-soft text-center mt-6">
+                Pas encore client ?
+                <!-- TODO: remplacer par l'URL réelle de la landing page GestiRestoPro une fois déployée -->
+                <a href="#" class="font-semibold text-menu-saffron-deep hover:underline">Demander une démo</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+@if (showForgotPasswordModal()) {
+    <app-forget-password (onClose)="closeForgotPasswordModal()"></app-forget-password>
+}

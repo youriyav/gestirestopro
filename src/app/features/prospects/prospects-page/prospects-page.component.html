@@ -1,0 +1,70 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Prospects</h1>
+      <p class="text-sm text-menu-ink-soft">{{ total() }} demande(s) de démo</p>
+    </div>
+    <select
+      class="border border-menu-cream-2 rounded-lg px-3 py-2 text-sm bg-white text-menu-ink"
+      (change)="onFilterChange($any($event.target).value)"
+    >
+      <option value="">Tous les statuts</option>
+      @for (s of statuses; track s.value) {
+        <option [value]="s.value">{{ s.label }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-menu-ink-soft text-xs uppercase tracking-wide">
+            <th class="px-6 py-3 font-semibold">Restaurant</th>
+            <th class="px-6 py-3 font-semibold">Contact</th>
+            <th class="px-6 py-3 font-semibold">Formule</th>
+            <th class="px-6 py-3 font-semibold">Statut</th>
+            <th class="px-6 py-3 font-semibold"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading()) {
+            <tr><td colspan="5" class="px-6 py-8 text-center text-menu-ink-soft">Chargement...</td></tr>
+          } @else if (prospects().length === 0) {
+            <tr><td colspan="5" class="px-6 py-8 text-center text-menu-ink-soft">Aucun prospect.</td></tr>
+          } @else {
+            @for (prospect of prospects(); track prospect.id) {
+              <tr class="border-t border-menu-cream-2">
+                <td class="px-6 py-4">
+                  <p class="font-semibold text-menu-ink">{{ prospect.restaurantName }}</p>
+                  <p class="text-xs text-menu-ink-soft">{{ prospect.city }}</p>
+                </td>
+                <td class="px-6 py-4 text-menu-ink">
+                  <p>{{ prospect.contactName }}</p>
+                  <p class="text-xs text-menu-ink-soft">{{ prospect.phone }}</p>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-menu-cream-2 text-menu-ink-soft">
+                    {{ planLabel(prospect.desiredPlan) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-menu-ink-soft">{{ statusLabel(prospect.status) }}</td>
+                <td class="px-6 py-4 text-right">
+                  <select
+                    class="border border-menu-cream-2 rounded-lg px-2 py-1 text-xs bg-white text-menu-ink"
+                    [value]="prospect.status"
+                    (change)="updateStatus(prospect, $any($event.target).value)"
+                  >
+                    @for (s of statuses; track s.value) {
+                      <option [value]="s.value">{{ s.label }}</option>
+                    }
+                  </select>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

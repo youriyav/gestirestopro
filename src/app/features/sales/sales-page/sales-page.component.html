@@ -1,0 +1,61 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+    <div>
+      <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Ventes</h1>
+      <p class="text-sm text-menu-ink-soft">{{ total() }} vente(s)</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <input
+        type="date"
+        class="border border-menu-cream-2 rounded-lg px-3 py-2 text-sm bg-white text-menu-ink"
+        [value]="selectedDate()"
+        (change)="onDateChange($any($event.target).value)"
+      />
+      <select
+        class="border border-menu-cream-2 rounded-lg px-3 py-2 text-sm bg-white text-menu-ink"
+        [value]="selectedCashierId()"
+        (change)="onCashierChange($any($event.target).value)"
+      >
+        <option value="">Tous les caissiers</option>
+        @for (cashier of cashiers(); track cashier.id) {
+          <option [value]="cashier.id">{{ cashier.first_name }} {{ cashier.last_name }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-menu-ink-soft text-xs uppercase tracking-wide">
+            <th class="px-6 py-3 font-semibold">Heure</th>
+            <th class="px-6 py-3 font-semibold">Table</th>
+            <th class="px-6 py-3 font-semibold">Caissier</th>
+            <th class="px-6 py-3 font-semibold">Articles</th>
+            <th class="px-6 py-3 font-semibold text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading()) {
+            <tr><td colspan="5" class="px-6 py-8 text-center text-menu-ink-soft">Chargement...</td></tr>
+          } @else if (sales().length === 0) {
+            <tr><td colspan="5" class="px-6 py-8 text-center text-menu-ink-soft">Aucune vente pour cette date.</td></tr>
+          } @else {
+            @for (sale of sales(); track sale.id) {
+              <tr class="border-t border-menu-cream-2">
+                <td class="px-6 py-4 text-menu-ink-soft">{{ sale.printedAt | date:'HH:mm':'':'fr' }}</td>
+                <td class="px-6 py-4 font-semibold text-menu-ink">{{ sale.tableLabel }}</td>
+                <td class="px-6 py-4 text-menu-ink">{{ cashierName(sale) }}</td>
+                <td class="px-6 py-4 text-menu-ink-soft">{{ itemsSummary(sale) }}</td>
+                <td class="px-6 py-4 font-menu-mono text-menu-ink text-right">
+                  {{ sale.total | number:'1.0-0':'fr' }} F
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

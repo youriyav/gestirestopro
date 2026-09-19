@@ -12,6 +12,29 @@
   --color-success: #22C55E;
   --color-warning: #F59E0B;
   --color-error: #EF4444;
+
+  /* Digital menu sub-brand palette (public /menu, /admin/menu, /login, and the Super Admin back-office) */
+  --color-menu-cream: #FBF6EC;
+  --color-menu-cream-2: #F3ECDD;
+  --color-menu-ink: #241C15;
+  --color-menu-ink-soft: #5B5245;
+  --color-menu-saffron: #E8850F;
+  --color-menu-saffron-deep: #A63B12;
+  --color-menu-cassis: #C4232B;
+  --color-menu-nile: #2F6E8E;
+  --color-menu-nile-bg: #E3EEF2;
+  --color-menu-error: #B5342E;
+  --color-menu-error-bg: #FBE6E4;
+  --color-menu-success: #3B7A3F;
+  --color-menu-success-bg: #E7F1E4;
+  --color-menu-trial: #B5760F;
+  --color-menu-trial-bg: #FBEED9;
+  /* Impersonation banner — deliberately amber, distinct from the saffron brand color */
+  --color-menu-amber: #B5760F;
+
+  --font-menu-heading: 'Baloo 2', sans-serif;
+  --font-menu-body: 'Work Sans', sans-serif;
+  --font-menu-mono: 'Space Mono', monospace;
 }
 
 /* You can add global styles to this file, and also import other style files */

@@ -1,0 +1,14 @@
+.login-phone-frame {
+  border: 8px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.5rem;
+}
+
+.login-phone-frame__screen {
+  background: var(--color-menu-cream);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}

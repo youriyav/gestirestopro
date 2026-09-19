@@ -1,0 +1,63 @@
+<aside
+  class="fixed lg:static h-screen flex flex-col
+  text-white overflow-y-auto z-50 transform
+  transition-all duration-300 ease-in-out
+  -translate-x-full lg:translate-x-0 bg-menu-ink font-menu-body w-64"
+  [class.translate-x-0]="isOpen()"
+  [class.-translate-x-full]="!isOpen()"
+>
+  <!-- Repère de contexte -->
+  <div class="px-6 pt-6">
+    <p class="font-menu-body text-[11px] font-semibold tracking-wide text-menu-cream/50 uppercase">
+      GestiRestoPro · Admin
+    </p>
+  </div>
+
+  <!-- Identité du restaurant impersoné -->
+  <div class="px-6 pt-3 pb-6 border-b border-white/10 flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-menu-saffron flex items-center justify-center shrink-0">
+      <span class="text-white font-semibold text-sm">{{ restaurantInitials() }}</span>
+    </div>
+    <div class="min-w-0">
+      <p class="font-menu-heading font-bold text-white truncate">{{ restaurant()?.name }}</p>
+      <p class="font-menu-body text-xs text-menu-cream/60">Formule {{ planLabel(restaurant()?.plan) }}</p>
+    </div>
+  </div>
+
+  <!-- Navigation restaurant -->
+  <nav class="flex-1 py-6">
+    <ul class="space-y-2 px-4">
+      @for (item of navItems; track item.route) {
+        <li>
+          <a
+            [routerLink]="item.route"
+            [queryParamsHandling]="'preserve'"
+            [class.bg-menu-saffron]="isActiveRoute(item.route)"
+            [class.text-white]="isActiveRoute(item.route)"
+            [class.text-menu-cream-2]="!isActiveRoute(item.route)"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+            (click)="onLinkClick()"
+          >
+            <span class="w-6 h-6">
+              <ng-container *ngComponentOutlet="item.icon"></ng-container>
+            </span>
+            <span class="text-[16px] font-medium">{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Identité du Super Admin connecté (pas celle d'un membre du restaurant) -->
+  <div class="p-4 border-t border-white/10">
+    <div class="flex items-center gap-3 px-4 py-3">
+      <div class="w-10 h-10 rounded-full bg-menu-cassis flex items-center justify-center shrink-0">
+        <span class="text-white font-semibold text-sm">{{ getUserInitials() }}</span>
+      </div>
+      <div class="min-w-0">
+        <p class="text-sm font-medium whitespace-nowrap truncate">{{ getUserDisplayName() }}</p>
+        <p class="text-xs text-menu-cream/50 whitespace-nowrap">Super Admin</p>
+      </div>
+    </div>
+  </div>
+</aside>

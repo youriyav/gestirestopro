@@ -1,0 +1,33 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="mb-6">
+    <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Équipe interne</h1>
+    <p class="text-sm text-menu-ink-soft">Comptes internes GestiRestoPro (hors personnel des restaurants clients)</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-menu-ink-soft text-xs uppercase tracking-wide">
+            <th class="px-6 py-3 font-semibold">Nom</th>
+            <th class="px-6 py-3 font-semibold">Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading()) {
+            <tr><td colspan="2" class="px-6 py-8 text-center text-menu-ink-soft">Chargement...</td></tr>
+          } @else if (internalUsers().length === 0) {
+            <tr><td colspan="2" class="px-6 py-8 text-center text-menu-ink-soft">Aucun compte interne.</td></tr>
+          } @else {
+            @for (user of internalUsers(); track user.id) {
+              <tr class="border-t border-menu-cream-2">
+                <td class="px-6 py-4 text-menu-ink font-semibold">{{ user.first_name }} {{ user.last_name }}</td>
+                <td class="px-6 py-4 text-menu-ink-soft">{{ user.email }}</td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

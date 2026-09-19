@@ -1,0 +1,56 @@
+@if (isOpen()) {
+<div
+  class="fixed inset-0 bg-menu-ink/50 flex items-center justify-center z-50 p-4"
+  (click)="onBackdropClick($event)"
+>
+  <div class="bg-white rounded-2xl shadow-xl max-w-md w-full font-menu-body">
+    <!-- Header -->
+    <div class="p-6 pb-0">
+      <div class="w-12 h-12 rounded-full bg-menu-trial-bg flex items-center justify-center mb-4">
+        <svg class="w-6 h-6 text-menu-trial" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <h2 class="font-menu-heading text-xl font-bold text-menu-ink">
+        Accéder au compte de {{ restaurantName() }} ?
+      </h2>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6 pt-4">
+      <p class="text-sm text-menu-ink-soft">
+        Vous allez visualiser l'application avec les droits d'administration de
+        <strong>{{ restaurantName() }}</strong>. Cette action est enregistrée dans le journal
+        d'audit et {{ restaurantName() }} peut en être informé.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 p-6 pt-0">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="px-5 py-2.5 bg-menu-cream-2 text-menu-ink rounded-full hover:bg-menu-cream-2/70 font-medium transition-colors"
+        [disabled]="isLoading()"
+      >
+        Annuler
+      </button>
+      <button
+        type="button"
+        (click)="onConfirm()"
+        class="px-5 py-2.5 bg-menu-saffron text-white rounded-full hover:bg-menu-saffron-deep font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          <span class="flex items-center gap-2">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            Connexion...
+          </span>
+        } @else {
+          Continuer
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}

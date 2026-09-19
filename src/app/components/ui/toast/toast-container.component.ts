@@ -1,13 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService, Toast } from '@app/shared/services/toast.service';
+import { AuthService } from '@app/core/services/auth.service';
 
 @Component({
   selector: 'app-toast-container',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm">
+    <div
+      class="fixed right-4 z-50 flex flex-col gap-2 max-w-sm"
+      [class.top-20]="!authService.isImpersonating()"
+      [class.top-28]="authService.isImpersonating()"
+    >
       @for (toast of toastService.toasts(); track toast.id) {
         <div
           class="flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border animate-slide-in"
@@ -81,4 +86,5 @@ import { ToastService, Toast } from '@app/shared/services/toast.service';
 })
 export class ToastContainerComponent {
   toastService = inject(ToastService);
+  authService = inject(AuthService);
 }

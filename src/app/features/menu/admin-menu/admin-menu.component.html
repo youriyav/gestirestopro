@@ -1,0 +1,437 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <!-- En-tête -->
+  <div class="flex items-end gap-4 flex-wrap justify-between mb-6">
+    <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Gestion du menu</h1>
+    <div class="flex items-center gap-2 flex-wrap">
+      <input
+        type="search"
+        [value]="query()"
+        (input)="onSearchInput($event)"
+        placeholder="Rechercher un plat…"
+        class="w-64 p-3 rounded-xl border border-menu-cream-2 bg-white"
+      />
+      <button
+        type="button"
+        (click)="openCreateCategory()"
+        class="font-semibold text-menu-ink border border-menu-cream-2 bg-white hover:bg-menu-cream-2 px-5 py-2.5 rounded-full transition-colors"
+      >
+        + Catégorie
+      </button>
+      <button
+        type="button"
+        (click)="openCreateDish()"
+        class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors"
+      >
+        + Nouveau plat
+      </button>
+    </div>
+  </div>
+
+  <!-- Bandeau de chiffres -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-success-bg text-menu-success flex items-center justify-center shrink-0">
+        <app-category-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Catégories</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ stats().categories }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-trial-bg text-menu-trial flex items-center justify-center shrink-0">
+        <app-dish-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Plats au menu</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ stats().dishes }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-error-bg text-menu-error flex items-center justify-center shrink-0">
+        <app-close-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Épuisés</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ stats().outOfStock }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-nile-bg text-menu-nile flex items-center justify-center shrink-0">
+        <app-revenue-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Prix moyen</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ stats().avgPrice }}</p>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="text-menu-ink-soft">Chargement…</p>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
+      <!-- Colonne catégories -->
+      <aside class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+        <div class="flex items-baseline justify-between px-4 pt-4 pb-3">
+          <h2 class="font-menu-heading font-bold text-menu-ink text-sm uppercase tracking-wide">Catégories</h2>
+          <span class="text-xs text-menu-ink-soft">{{ categories().length }}</span>
+        </div>
+        <ul>
+          @for (category of categories(); track category.id) {
+            <li
+              class="group flex items-center gap-1 border-t border-menu-cream-2 pr-2"
+              [class.bg-menu-cream-2]="selectedCategoryId() === category.id && !query()"
+            >
+              <button
+                type="button"
+                (click)="selectCategory(category)"
+                class="flex-1 min-w-0 flex items-center gap-3 py-3 px-3 border-l-[3px] text-left"
+                [class.border-menu-saffron]="selectedCategoryId() === category.id && !query()"
+                [class.border-transparent]="!(selectedCategoryId() === category.id && !query())"
+              >
+                <span class="w-7 h-7 rounded-lg bg-menu-cream flex items-center justify-center text-sm shrink-0">{{ category.icon || '🍽️' }}</span>
+                <span class="flex-1 min-w-0 truncate font-menu-heading font-bold text-sm text-menu-ink">{{ category.name }}</span>
+                <span class="text-xs text-menu-ink-soft tabular-nums">{{ itemCount(category.id) }}</span>
+              </button>
+              <span class="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  (click)="moveCategory(category, -1)"
+                  [disabled]="isFirstCategory(category)"
+                  class="p-1 text-menu-ink-soft hover:text-menu-ink disabled:opacity-30"
+                  aria-label="Monter"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  (click)="moveCategory(category, 1)"
+                  [disabled]="isLastCategory(category)"
+                  class="p-1 text-menu-ink-soft hover:text-menu-ink disabled:opacity-30"
+                  aria-label="Descendre"
+                >
+                  ↓
+                </button>
+                <button type="button" (click)="openEditCategory(category)" title="Modifier" class="p-1 text-menu-saffron hover:text-menu-saffron-deep">
+                  <app-pencil-icon />
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+        <div class="border-t border-menu-cream-2 px-4 py-3">
+          <button type="button" (click)="openCreateCategory()" class="text-sm font-semibold text-menu-saffron hover:underline">
+            + Ajouter une catégorie
+          </button>
+        </div>
+      </aside>
+
+      <!-- Panneau plats -->
+      <section class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+        <div class="flex items-center gap-4 flex-wrap px-6 py-4 border-b border-menu-cream-2">
+          <h2 class="font-menu-heading font-bold text-menu-ink text-lg">{{ panelTitle() }}</h2>
+          <span class="text-sm text-menu-ink-soft">
+            {{ filteredDishes().length }} {{ filteredDishes().length === 1 ? 'plat' : 'plats' }}
+          </span>
+          <span class="flex-1"></span>
+          <div class="flex rounded-full border border-menu-cream-2 overflow-hidden text-sm">
+            <button
+              type="button"
+              (click)="setAvailabilityFilter('all')"
+              class="px-3 py-1.5 transition-colors"
+              [class.bg-menu-saffron]="availabilityFilter() === 'all'"
+              [class.text-white]="availabilityFilter() === 'all'"
+              [class.text-menu-ink-soft]="availabilityFilter() !== 'all'"
+            >
+              Tous
+            </button>
+            <button
+              type="button"
+              (click)="setAvailabilityFilter('on')"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="availabilityFilter() === 'on'"
+              [class.text-white]="availabilityFilter() === 'on'"
+              [class.text-menu-ink-soft]="availabilityFilter() !== 'on'"
+            >
+              Disponibles
+            </button>
+            <button
+              type="button"
+              (click)="setAvailabilityFilter('off')"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="availabilityFilter() === 'off'"
+              [class.text-white]="availabilityFilter() === 'off'"
+              [class.text-menu-ink-soft]="availabilityFilter() !== 'off'"
+            >
+              Épuisés
+            </button>
+          </div>
+          <div class="flex rounded-full border border-menu-cream-2 overflow-hidden text-sm">
+            <button
+              type="button"
+              (click)="setView('list')"
+              class="px-3 py-1.5 transition-colors"
+              [class.bg-menu-saffron]="view() === 'list'"
+              [class.text-white]="view() === 'list'"
+              [class.text-menu-ink-soft]="view() !== 'list'"
+            >
+              Liste
+            </button>
+            <button
+              type="button"
+              (click)="setView('grid')"
+              class="px-3 py-1.5 border-l border-menu-cream-2 transition-colors"
+              [class.bg-menu-saffron]="view() === 'grid'"
+              [class.text-white]="view() === 'grid'"
+              [class.text-menu-ink-soft]="view() !== 'grid'"
+            >
+              Grille
+            </button>
+          </div>
+        </div>
+
+        @if (filteredDishes().length === 0) {
+          <div class="p-8 text-left">
+            <p class="font-menu-heading font-bold text-menu-ink text-lg">Aucun plat ne correspond</p>
+            <p class="text-sm text-menu-ink-soft mt-1">Modifiez la recherche ou le filtre de disponibilité.</p>
+          </div>
+        } @else if (view() === 'list') {
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs uppercase tracking-wide text-menu-ink-soft border-b border-menu-cream-2">
+                <th class="px-6 py-3 font-medium">Plat</th>
+                <th class="px-3 py-3 font-medium">Unité</th>
+                <th class="px-3 py-3 font-medium text-right">Prix</th>
+                <th class="px-3 py-3 font-medium">État</th>
+                <th class="px-6 py-3 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of filteredDishes(); track item.id) {
+                <tr class="group border-b border-menu-cream-2">
+                  <td class="px-6 py-3">
+                    <div class="flex items-center gap-3 min-w-0">
+                      @if (item.imageUrl) {
+                        <img [src]="item.imageUrl" [alt]="item.name" class="w-9 h-9 rounded-lg object-cover shrink-0" />
+                      } @else {
+                        <span class="w-9 h-9 rounded-lg bg-menu-cream flex items-center justify-center text-sm shrink-0">
+                          {{ item.category?.icon || '🍽️' }}
+                        </span>
+                      }
+                      <div class="min-w-0">
+                        <p class="truncate font-menu-heading font-bold text-menu-ink">{{ item.name }}</p>
+                        @if (query()) {
+                          <p class="text-xs text-menu-ink-soft">{{ item.category?.name }}</p>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-3 py-3 text-menu-ink-soft">{{ item.unit || '—' }}</td>
+                  <td class="px-3 py-3 text-right font-menu-mono font-bold text-menu-ink tabular-nums">{{ item.price }} FCFA</td>
+                  <td class="px-3 py-3">
+                    <button type="button" (click)="toggleAvailability(item)" class="flex items-center gap-2">
+                      <span
+                        class="w-8 h-[18px] rounded-full border border-menu-cream-2 flex items-center px-0.5 transition-colors"
+                        [class.bg-menu-saffron]="item.isAvailable"
+                        [class.bg-menu-cream-2]="!item.isAvailable"
+                        [class.justify-end]="item.isAvailable"
+                      >
+                        <span class="w-3 h-3 rounded-full bg-white block"></span>
+                      </span>
+                      <span class="text-xs text-menu-ink-soft">{{ item.isAvailable ? 'Disponible' : 'Épuisé' }}</span>
+                    </button>
+                  </td>
+                  <td class="px-6 py-3 text-right">
+                    <span class="inline-flex gap-2">
+                      <button type="button" (click)="openEditDish(item)" title="Modifier" class="p-1 text-menu-saffron hover:text-menu-saffron-deep">
+                        <app-pencil-icon />
+                      </button>
+                      <button type="button" (click)="duplicateDish(item)" title="Dupliquer" class="p-1 text-menu-ink-soft hover:text-menu-ink">
+                        <app-copy-icon />
+                      </button>
+                      <button type="button" (click)="requestDeleteItem(item)" title="Supprimer" class="p-1 text-menu-error hover:text-menu-error">
+                        <app-trash-icon />
+                      </button>
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+            @for (item of filteredDishes(); track item.id) {
+              <div class="rounded-xl border border-menu-cream-2 overflow-hidden">
+                <div class="aspect-[4/3] bg-menu-cream flex items-center justify-center">
+                  @if (item.imageUrl) {
+                    <img [src]="item.imageUrl" [alt]="item.name" class="w-full h-full object-cover grayscale" />
+                  } @else {
+                    <span class="text-3xl">{{ item.category?.icon || '🍽️' }}</span>
+                  }
+                </div>
+                <div class="p-3 flex flex-col gap-2">
+                  <p class="font-menu-heading font-bold text-menu-ink text-sm">{{ item.name }}</p>
+                  <div class="flex items-baseline justify-between">
+                    <span class="font-menu-mono font-bold text-menu-ink text-sm">{{ item.price }} FCFA</span>
+                    <span class="text-xs text-menu-ink-soft">{{ item.unit || '—' }}</span>
+                  </div>
+                  <div class="flex items-center justify-between border-t border-menu-cream-2 pt-2">
+                    <button type="button" (click)="toggleAvailability(item)" class="flex items-center gap-1.5">
+                      <span
+                        class="w-8 h-[18px] rounded-full border border-menu-cream-2 flex items-center px-0.5 transition-colors"
+                        [class.bg-menu-saffron]="item.isAvailable"
+                        [class.bg-menu-cream-2]="!item.isAvailable"
+                        [class.justify-end]="item.isAvailable"
+                      >
+                        <span class="w-3 h-3 rounded-full bg-white block"></span>
+                      </span>
+                      <span class="text-xs text-menu-ink-soft">{{ item.isAvailable ? 'Disponible' : 'Épuisé' }}</span>
+                    </button>
+                    <button type="button" (click)="openEditDish(item)" class="text-xs font-semibold text-menu-saffron hover:underline">
+                      Modifier
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>
+
+<!-- Dialogue plat -->
+@if (dishDialog()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeDishDialog()">
+    <div
+      class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col font-menu-body"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2 shrink-0">
+        <h3 class="font-menu-heading font-bold text-lg text-menu-ink">
+          {{ dishDialog()?.mode === 'edit' ? 'Modifier le plat' : 'Nouveau plat' }}
+        </h3>
+        <button type="button" (click)="closeDishDialog()" class="text-menu-ink-soft hover:text-menu-ink text-2xl leading-none px-1" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <form [formGroup]="itemForm" (ngSubmit)="submitDish()" class="flex flex-col overflow-y-auto">
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Nom du plat</label>
+            <input formControlName="name" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Omelette Dinde et Fromage" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Catégorie</label>
+            <select formControlName="categoryId" class="p-3 rounded-xl border border-menu-cream-2 bg-white">
+              @for (category of categories(); track category.id) {
+                <option [value]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Prix (FCFA)</label>
+            <input type="number" min="0" formControlName="price" class="p-3 rounded-xl border border-menu-cream-2" placeholder="5500" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Unité (optionnel)</label>
+            <input formControlName="unit" class="p-3 rounded-xl border border-menu-cream-2" placeholder="500 g, Plat, Suppl." />
+          </div>
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <label class="text-sm font-medium text-menu-ink">Description (optionnel)</label>
+            <textarea formControlName="description" rows="2" class="p-3 rounded-xl border border-menu-cream-2"></textarea>
+          </div>
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <label class="text-sm font-medium text-menu-ink">Photo</label>
+            <div class="flex items-center gap-3 border border-dashed border-menu-cream-2 bg-menu-cream rounded-xl p-3">
+              @if (previewUrl() || editingItemImageUrl()) {
+                <img [src]="previewUrl() || editingItemImageUrl()" alt="Aperçu" class="w-12 h-12 rounded-lg object-cover shrink-0" />
+              }
+              <span class="text-xs text-menu-ink-soft flex-1">JPG ou PNG, 1200 × 900 recommandé</span>
+              <label class="text-sm font-semibold text-menu-saffron hover:underline cursor-pointer shrink-0">
+                Choisir un fichier
+                <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onFileSelected($event)" class="hidden" />
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 px-6 py-4 border-t border-menu-cream-2 shrink-0">
+          <label class="flex items-center gap-2 text-sm text-menu-ink">
+            <input type="checkbox" formControlName="isAvailable" class="h-4 w-4" />
+            Disponible à la vente
+          </label>
+          <span class="flex-1"></span>
+          <button type="button" (click)="closeDishDialog()" class="px-4 py-2 text-menu-ink-soft hover:text-menu-ink">Annuler</button>
+          <button
+            type="submit"
+            [disabled]="savingItem()"
+            class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+          >
+            {{ savingItem() ? 'Enregistrement...' : 'Enregistrer le plat' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Dialogue catégorie -->
+@if (categoryDialog()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeCategoryDialog()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md font-menu-body" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2">
+        <h3 class="font-menu-heading font-bold text-lg text-menu-ink">
+          {{ categoryDialog()?.mode === 'edit' ? 'Modifier la catégorie' : 'Nouvelle catégorie' }}
+        </h3>
+        <button type="button" (click)="closeCategoryDialog()" class="text-menu-ink-soft hover:text-menu-ink text-2xl leading-none px-1" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <form [formGroup]="categoryForm" (ngSubmit)="submitCategory()">
+        <div class="p-6 flex flex-col gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Nom</label>
+            <input formControlName="name" (input)="onCategoryNameInput()" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Pizza" />
+          </div>
+          <div class="grid grid-cols-[1fr_100px] gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-menu-ink">Slug</label>
+              <input formControlName="slug" (input)="onCategorySlugInput()" class="p-3 rounded-xl border border-menu-cream-2" placeholder="pizza" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-sm font-medium text-menu-ink">Icône</label>
+              <input formControlName="icon" class="p-3 rounded-xl border border-menu-cream-2" placeholder="🍕" />
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 px-6 py-4 border-t border-menu-cream-2">
+          @if (categoryDialog()?.mode === 'edit') {
+            <button type="button" (click)="deleteCategoryFromDialog()" class="text-sm font-semibold text-menu-error hover:underline">
+              Supprimer la catégorie
+            </button>
+          }
+          <span class="flex-1"></span>
+          <button type="button" (click)="closeCategoryDialog()" class="px-4 py-2 text-menu-ink-soft hover:text-menu-ink">Annuler</button>
+          <button
+            type="submit"
+            [disabled]="savingCategory()"
+            class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+          >
+            {{ savingCategory() ? 'Enregistrement...' : (categoryDialog()?.mode === 'edit' ? 'Mettre à jour' : 'Créer la catégorie') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<app-delete-confirmation-modal
+  [isOpen]="!!pendingDelete()"
+  [title]="pendingDelete()?.type === 'category' ? 'Supprimer la catégorie' : 'Supprimer le plat'"
+  [message]="'Voulez-vous vraiment supprimer « ' + (pendingDelete()?.label ?? '') + ' » ?'"
+  [isDeleting]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>

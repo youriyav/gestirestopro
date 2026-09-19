@@ -14,6 +14,7 @@ export interface User {
   isActivate?: boolean;
   isAdmin?: boolean;
   role?: string;
+  accessCode?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -25,6 +26,8 @@ export interface UpdateUserDto {
   phone?: string;
   address?: string;
   password?: string;
+  role?: string;
+  isActivate?: boolean;
 }
 
 export interface CreateUserDto {
@@ -36,6 +39,7 @@ export interface CreateUserDto {
   address?: string;
   isAdmin?: boolean;
   role?: string;
+  isActivate?: boolean;
 }
 
 @Injectable({
@@ -50,8 +54,18 @@ export class UsersService {
     return this.http.get<ApiResponse<User[]>>(this.API_URL);
   }
 
+  /** Super Admin only — every user across every restaurant, via GET /users/all. */
+  findAllAcrossAllRestaurants(): Observable<ApiResponse<User[]>> {
+    return this.http.get<ApiResponse<User[]>>(`${this.API_URL}/all`);
+  }
+
   findOne(id: string): Observable<ApiResponse<User>> {
     return this.http.get<ApiResponse<User>>(`${this.API_URL}/${id}`);
+  }
+
+  /** On-demand reveal of a SERVER/CASHIER user's 4-digit mobile access code. */
+  getAccessCode(id: string): Observable<ApiResponse<{ accessCode: string | null }>> {
+    return this.http.get<ApiResponse<{ accessCode: string | null }>>(`${this.API_URL}/${id}/access-code`);
   }
 
   create(createUserDto: CreateUserDto): Observable<ApiResponse<User>> {

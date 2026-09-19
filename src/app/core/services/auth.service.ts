@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, finalize, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
@@ -16,6 +16,17 @@ export interface User {
   isAdmin: boolean;
   role?: USER_ROLES;
   isActivate: boolean;
+}
+
+export interface ImpersonatedRestaurant {
+  id: string;
+  name: string;
+  city: string;
+  plan: string;
+  status: string;
+  address?: string;
+  phone?: string;
+  logoUrl?: string;
 }
 
 export interface LoginResponse {
@@ -46,6 +57,12 @@ export class AuthService {
   private _isAuthenticated = signal<boolean>(false);
   private _isLoading = signal<boolean>(false);
 
+  // Impersonation state — deliberately kept in memory only (not localStorage):
+  // a reload during impersonation drops back to the admin's own session
+  // rather than persisting an elevated-access token longer than a tab's life.
+  private _impersonationToken = signal<string | null>(null);
+  private _impersonatedRestaurant = signal<ImpersonatedRestaurant | null>(null);
+
   constructor(
     private http: HttpClient,
     private router: Router
@@ -63,6 +80,28 @@ export class AuthService {
 
   get isLoading() {
     return this._isLoading.asReadonly();
+  }
+
+  get impersonatedRestaurant() {
+    return this._impersonatedRestaurant.asReadonly();
+  }
+
+  readonly isImpersonating = computed(() => this._impersonationToken() !== null);
+
+  startImpersonation(accessToken: string, restaurant: ImpersonatedRestaurant): void {
+    this._impersonationToken.set(accessToken);
+    this._impersonatedRestaurant.set(restaurant);
+  }
+
+  stopImpersonation(): void {
+    this._impersonationToken.set(null);
+    this._impersonatedRestaurant.set(null);
+  }
+
+  updateImpersonatedRestaurant(patch: Partial<ImpersonatedRestaurant>): void {
+    const current = this._impersonatedRestaurant();
+    if (!current) return;
+    this._impersonatedRestaurant.set({ ...current, ...patch });
   }
 
   login(credentials: LoginRequest): Observable<ApiResponse<LoginResponse>> {
@@ -127,7 +166,7 @@ export class AuthService {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+    return this._impersonationToken() ?? localStorage.getItem(this.ACCESS_TOKEN_KEY);
   }
 
   getRefreshToken(): string | null {

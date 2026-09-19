@@ -1,0 +1,148 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="mb-6">
+    <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Dashboard</h1>
+    <p class="text-sm text-menu-ink-soft">
+      {{ authService.impersonatedRestaurant()?.city }} · Formule
+      {{ authService.impersonatedRestaurant()?.plan === 'business' ? 'Business' : authService.impersonatedRestaurant()?.plan === 'pro' ? 'Pro' : 'Essentiel' }}
+    </p>
+  </div>
+
+  <!-- CA/Commandes/Panier moyen : réel, calculé depuis les ventes du jour (GET /sales). -->
+  <!-- "Tables servies" : réel, calculé depuis les vraies tables (état ≠ Libre). -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-success-bg text-menu-success flex items-center justify-center shrink-0">
+        <app-revenue-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Chiffre d'affaires</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ chiffreAffaires() | number:'1.0-0':'fr' }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-trial-bg text-menu-trial flex items-center justify-center shrink-0">
+        <app-documents-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Commandes</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ commandes() }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-nile-bg text-menu-nile flex items-center justify-center shrink-0">
+        <app-shopping-cart-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Panier moyen</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ panierMoyen() | number:'1.0-0':'fr' }}</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5 flex items-center gap-4">
+      <span class="w-10 h-10 rounded-xl bg-menu-error-bg text-menu-error flex items-center justify-center shrink-0">
+        <app-restaurant-icon class="w-5 h-5" />
+      </span>
+      <div>
+        <p class="text-sm text-menu-ink-soft mb-1">Tables servies</p>
+        <p class="font-menu-mono text-xl font-bold text-menu-ink">{{ tablesServies() }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-menu-cream-2 p-6">
+    <h2 class="font-menu-heading font-bold text-menu-ink mb-3">Tables actives</h2>
+
+    <!-- Légende / filtre -->
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-5 text-xs text-menu-ink-soft">
+      <button
+        type="button"
+        (click)="toggleStatusFilter(TABLE_ETAT.LIBRE)"
+        class="flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors hover:bg-menu-cream-2"
+        [class.bg-menu-cream-2]="statusFilter() === TABLE_ETAT.LIBRE"
+        [class.font-semibold]="statusFilter() === TABLE_ETAT.LIBRE"
+      >
+        <span class="w-2 h-2 rounded-full bg-menu-success"></span>Libre
+      </button>
+      <button
+        type="button"
+        (click)="toggleStatusFilter(TABLE_ETAT.OCCUPEE)"
+        class="flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors hover:bg-menu-cream-2"
+        [class.bg-menu-cream-2]="statusFilter() === TABLE_ETAT.OCCUPEE"
+        [class.font-semibold]="statusFilter() === TABLE_ETAT.OCCUPEE"
+      >
+        <span class="w-2 h-2 rounded-full bg-menu-trial"></span>Occupée
+      </button>
+      <button
+        type="button"
+        (click)="toggleStatusFilter(TABLE_ETAT.ADDITION)"
+        class="flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors hover:bg-menu-cream-2"
+        [class.bg-menu-cream-2]="statusFilter() === TABLE_ETAT.ADDITION"
+        [class.font-semibold]="statusFilter() === TABLE_ETAT.ADDITION"
+      >
+        <span class="w-2 h-2 rounded-full bg-menu-error"></span>Addition
+      </button>
+      <button
+        type="button"
+        (click)="toggleStatusFilter(TABLE_ETAT.RESERVEE)"
+        class="flex items-center gap-1.5 px-2 py-1 rounded-full transition-colors hover:bg-menu-cream-2"
+        [class.bg-menu-cream-2]="statusFilter() === TABLE_ETAT.RESERVEE"
+        [class.font-semibold]="statusFilter() === TABLE_ETAT.RESERVEE"
+      >
+        <span class="w-2 h-2 rounded-full bg-menu-nile"></span>Réservée
+      </button>
+      @if (statusFilter()) {
+        <button
+          type="button"
+          (click)="clearStatusFilter()"
+          class="text-menu-saffron font-semibold px-2 py-1 hover:underline"
+        >
+          Effacer le filtre
+        </button>
+      }
+    </div>
+
+    @if (tables().length === 0) {
+      <p class="text-sm text-menu-ink-soft">Aucune table enregistrée. Ajoutez-en depuis la page « Table ».</p>
+    } @else if (filteredTables().length === 0) {
+      <p class="text-sm text-menu-ink-soft">Aucune table avec ce statut.</p>
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (table of filteredTables(); track table.id) {
+          <div class="rounded-xl border border-menu-cream-2 p-4">
+            <div class="flex items-center justify-between mb-2">
+              <p class="font-menu-heading font-bold text-menu-ink">{{ table.nom }}</p>
+              <span
+                class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full"
+                [class.bg-menu-success-bg]="table.etat === TABLE_ETAT.LIBRE"
+                [class.text-menu-success]="table.etat === TABLE_ETAT.LIBRE"
+                [class.bg-menu-trial-bg]="table.etat === TABLE_ETAT.OCCUPEE"
+                [class.text-menu-trial]="table.etat === TABLE_ETAT.OCCUPEE"
+                [class.bg-menu-error-bg]="table.etat === TABLE_ETAT.ADDITION"
+                [class.text-menu-error]="table.etat === TABLE_ETAT.ADDITION"
+                [class.bg-menu-nile-bg]="table.etat === TABLE_ETAT.RESERVEE"
+                [class.text-menu-nile]="table.etat === TABLE_ETAT.RESERVEE"
+              >
+                {{ etatLabel(table.etat) }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <p class="text-sm text-menu-ink-soft">{{ table.capacite }} couverts</p>
+              @if (table.assignedStaff) {
+                <span class="flex items-center gap-1.5">
+                  <span class="w-6 h-6 rounded-full bg-menu-cassis text-white text-[10px] font-semibold flex items-center justify-center">
+                    {{ staffInitials(table.assignedStaff) }}
+                  </span>
+                  <span class="text-xs text-menu-ink-soft">{{ table.assignedStaff.first_name }}</span>
+                </span>
+              }
+            </div>
+            @if (table.etat === TABLE_ETAT.OCCUPEE || table.etat === TABLE_ETAT.ADDITION) {
+              <p class="font-menu-mono font-bold text-menu-saffron-deep mt-1">
+                {{ tableTotal(table) | number:'1.0-0':'fr' }} F
+              </p>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

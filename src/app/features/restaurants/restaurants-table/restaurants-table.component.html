@@ -1,0 +1,204 @@
+<div class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden font-menu-body">
+  <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2">
+    <div class="flex items-center gap-3">
+      <h2 class="font-menu-heading text-lg font-bold text-menu-ink">Restaurants</h2>
+      <span class="text-sm text-menu-ink-soft">{{ total() }} au total</span>
+    </div>
+    <button
+      type="button"
+      (click)="openCreate()"
+      class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-4 py-2 rounded-full transition-colors text-sm"
+    >
+      + Ajouter un restaurant
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-menu-ink-soft text-xs uppercase tracking-wide">
+          <th class="px-6 py-3 font-semibold">Restaurant</th>
+          <th class="px-6 py-3 font-semibold">Formule</th>
+          <th class="px-6 py-3 font-semibold">Statut</th>
+          <th class="px-6 py-3 font-semibold">MRR</th>
+          <th class="px-6 py-3 font-semibold">Inscrit le</th>
+          <th class="px-6 py-3 font-semibold"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (isLoading()) {
+          <tr><td colspan="6" class="px-6 py-8 text-center text-menu-ink-soft">Chargement...</td></tr>
+        } @else if (restaurants().length === 0) {
+          <tr><td colspan="6" class="px-6 py-8 text-center text-menu-ink-soft">Aucun restaurant.</td></tr>
+        } @else {
+          @for (restaurant of restaurants(); track restaurant.id) {
+            <tr class="border-t border-menu-cream-2">
+              <td class="px-6 py-4">
+                <p class="font-semibold text-menu-ink">{{ restaurant.name }}</p>
+                <p class="text-xs text-menu-ink-soft">{{ restaurant.city }}</p>
+              </td>
+              <td class="px-6 py-4">
+                <span
+                  class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                  [class.bg-menu-ink]="restaurant.plan === 'business'"
+                  [class.text-white]="restaurant.plan === 'business'"
+                  [class.bg-menu-nile/15]="restaurant.plan === 'pro'"
+                  [class.text-menu-nile]="restaurant.plan === 'pro'"
+                  [class.bg-menu-cream-2]="restaurant.plan === 'essentiel'"
+                  [class.text-menu-ink-soft]="restaurant.plan === 'essentiel'"
+                >
+                  {{ planLabel(restaurant.plan) }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium"
+                  [class.text-menu-success]="restaurant.status === 'active'"
+                  [class.text-menu-trial]="restaurant.status === 'trial'"
+                  [class.text-menu-error]="restaurant.status === 'suspended'"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full"
+                    [class.bg-menu-success]="restaurant.status === 'active'"
+                    [class.bg-menu-trial]="restaurant.status === 'trial'"
+                    [class.bg-menu-error]="restaurant.status === 'suspended'"
+                  ></span>
+                  {{ statusLabel(restaurant.status) }}
+                </span>
+              </td>
+              <td class="px-6 py-4 font-menu-mono text-menu-ink">
+                {{ restaurant.mrr > 0 ? (restaurant.mrr | number:'1.0-0':'fr') + ' F' : '—' }}
+              </td>
+              <td class="px-6 py-4 text-menu-ink-soft">{{ restaurant.createdAt | date:'d MMM y':'':'fr' }}</td>
+              <td class="px-6 py-4 text-right">
+                <div class="inline-flex items-center gap-2">
+                  <button
+                    type="button"
+                    (click)="requestImpersonate(restaurant)"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-menu-cream-2 text-menu-ink hover:bg-menu-cream-2/70 transition-colors whitespace-nowrap"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    Se connecter en tant que
+                  </button>
+                  <span class="inline-flex gap-1">
+                    <button type="button" (click)="openEdit(restaurant)" title="Modifier" class="p-1 text-menu-saffron hover:text-menu-saffron-deep">
+                      <app-pencil-icon />
+                    </button>
+                    <button
+                      type="button"
+                      (click)="toggleStatus(restaurant)"
+                      [title]="restaurant.status === 'suspended' ? 'Activer' : 'Désactiver'"
+                      class="p-1"
+                      [class.text-menu-ink-soft]="restaurant.status !== 'suspended'"
+                      [class.hover:text-menu-ink]="restaurant.status !== 'suspended'"
+                      [class.text-menu-success]="restaurant.status === 'suspended'"
+                    >
+                      <app-power-icon />
+                    </button>
+                    <button type="button" (click)="requestDelete(restaurant)" title="Supprimer" class="p-1 text-menu-error hover:text-menu-error">
+                      <app-trash-icon />
+                    </button>
+                  </span>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<app-impersonate-confirm-modal
+  [isOpen]="!!pendingRestaurant()"
+  [restaurantName]="pendingRestaurant()?.name ?? ''"
+  [isLoading]="isImpersonating()"
+  (confirm)="confirmImpersonate()"
+  (cancel)="cancelImpersonate()"
+/>
+
+<!-- Dialogue création / modification -->
+@if (dialogMode()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeDialog()">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg font-menu-body" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2">
+        <h3 class="font-menu-heading font-bold text-lg text-menu-ink">
+          {{ dialogMode() === 'edit' ? 'Modifier le restaurant' : 'Nouveau restaurant' }}
+        </h3>
+        <button type="button" (click)="closeDialog()" class="text-menu-ink-soft hover:text-menu-ink text-2xl leading-none px-1" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <label class="text-sm font-medium text-menu-ink">Nom</label>
+            <input formControlName="name" (input)="onNameInput()" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Le Bangui Chic" />
+            @if (form.get('name')?.invalid && form.get('name')?.touched) {
+              <p class="text-xs text-menu-error">Ce champ est obligatoire.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <label class="text-sm font-medium text-menu-ink">Slug (URL publique)</label>
+            <input formControlName="slug" (input)="onSlugInput()" class="p-3 rounded-xl border border-menu-cream-2 font-menu-mono text-sm" placeholder="le-bangui-chic" />
+            @if (form.get('slug')?.invalid && form.get('slug')?.touched) {
+              <p class="text-xs text-menu-error">Minuscules, chiffres et tirets uniquement.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Ville</label>
+            <input formControlName="city" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Bangui" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Téléphone</label>
+            <input formControlName="phone" class="p-3 rounded-xl border border-menu-cream-2" placeholder="+236 70 12 34 56" />
+          </div>
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <label class="text-sm font-medium text-menu-ink">Adresse</label>
+            <input formControlName="address" class="p-3 rounded-xl border border-menu-cream-2" placeholder="12 Avenue de l'Indépendance" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Formule</label>
+            @if (dialogMode() === 'edit') {
+              <span class="p-3 rounded-xl bg-menu-cream-2 text-menu-ink-soft text-sm">
+                {{ planLabel(form.get('plan')?.value) }} (non modifiable)
+              </span>
+            } @else {
+              <select formControlName="plan" class="p-3 rounded-xl border border-menu-cream-2 bg-white">
+                <option value="essentiel">Essentiel</option>
+                <option value="pro">Pro</option>
+                <option value="business">Business</option>
+              </select>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Statut</label>
+            <select formControlName="status" class="p-3 rounded-xl border border-menu-cream-2 bg-white">
+              <option value="trial">Essai</option>
+              <option value="active">Actif</option>
+              <option value="suspended">Suspendu</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 px-6 py-4 border-t border-menu-cream-2">
+          <span class="flex-1"></span>
+          <button type="button" (click)="closeDialog()" class="px-4 py-2 text-menu-ink-soft hover:text-menu-ink">Annuler</button>
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+          >
+            {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<app-delete-confirmation-modal
+  [isOpen]="!!pendingDelete()"
+  title="Supprimer le restaurant"
+  [message]="'Voulez-vous vraiment supprimer « ' + (pendingDelete()?.name ?? '') + ' » ? Toutes ses données (menu, tables, personnel) resteront en base mais le restaurant ne sera plus accessible.'"
+  [isDeleting]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>

@@ -14,13 +14,12 @@ import { RouterModule, Router } from '@angular/router';
 import { SidebarService } from '@app/core/services/sidebar.service';
 import { HomeIcon } from '@app/components/ui/icons/home/home.icon';
 import { UsersIcon } from '@app/components/ui/icons/users/users.icon';
-import { GymIcon } from '@app/components/ui/icons/gym/gym';
-import { ProjectsIcon } from '@app/components/ui/icons/projects/projects.icon';
-import { ProvidersIcon } from '@app/components/ui/icons/providers/providers.icon';
-import { DocumentsIcon } from '@app/components/ui/icons/documents/documents.icon';
-import { LogisticsIcon } from '@app/components/ui/icons/logistics/logistics.icon';
+import { RestaurantIcon } from '@app/components/ui/icons/restaurant/restaurant.icon';
+import { EmailIcon } from '@app/components/ui/icons/email/email';
 import { SettingsIcon } from '@app/components/ui/icons/settings/settings.icon';
 import { LogoutIcon } from '@app/components/ui/icons/logout/logout.icon';
+import { RevenueIcon } from '@app/components/ui/icons/revenue/revenue.icon';
+import { OrdersIcon } from '@app/components/ui/icons/orders/orders.icon';
 import { AuthService, User } from '@app/core/services/auth.service';
 import { USER_ROLES } from '@app/shared/enums';
 
@@ -29,8 +28,8 @@ interface MenuItem {
   route: string;
   icon?: Type<any>;
   hasArrow?: boolean;
-  roles?: string[]; // Rôles autorisés pour voir cet élément (vide = accessible à tous)
-  submenu?: { label: string; route: string; roles?: string[] }[];
+  roles?: USER_ROLES[]; // Rôles autorisés pour voir cet élément (vide = accessible à tous)
+  submenu?: { label: string; route: string; roles?: USER_ROLES[] }[];
 }
 
 @Component({
@@ -115,6 +114,8 @@ export class SidebarComponent implements OnInit {
         [USER_ROLES.STAFF]: 'STAFF',
         [USER_ROLES.TRAINER]: 'TRAINER',
         [USER_ROLES.MEMBER]: 'MEMBER',
+        [USER_ROLES.SERVER]: 'SERVEUR',
+        [USER_ROLES.CASHIER]: 'CAISSIER',
       };
     return roleMap[user!.role!] 
 
@@ -123,15 +124,14 @@ export class SidebarComponent implements OnInit {
   /**
    * Vérifie si l'utilisateur a un rôle spécifique
    */
-  hasRole(requiredRoles?: string[]): boolean {
+  hasRole(requiredRoles?: USER_ROLES[]): boolean {
     if (!requiredRoles || requiredRoles.length === 0) {
       // Si aucun rôle requis, accessible à tous
       return true;
     }
 
-    
-
-    return true
+    const userRole = this.authService.currentUser()?.role;
+    return !!userRole && requiredRoles.includes(userRole);
   }
 
   /**
@@ -160,98 +160,46 @@ export class SidebarComponent implements OnInit {
 
   menuItems: MenuItem[] = [
     {
-      label: "VUE D'ENSEMBLE",
+      label: "Vue d'ensemble",
       route: '/dashboard',
       icon: HomeIcon,
-      roles: [], // Accessible à tous
+      roles: [USER_ROLES.SUPER_ADMIN],
     },
     {
-      label: 'Gymnases',
-      route: '/gym',
-      icon: GymIcon,
-      roles: [], // Accessible à tous
+      label: 'Restaurants',
+      route: '/restaurants',
+      icon: RestaurantIcon,
+      roles: [USER_ROLES.SUPER_ADMIN],
     },
     {
-      label: 'Membres',
-      route: '/membres',
+      label: 'Prospects',
+      route: '/prospects',
+      icon: EmailIcon,
+      roles: [USER_ROLES.SUPER_ADMIN],
+    },
+    {
+      label: 'Équipe interne',
+      route: '/equipe-interne',
       icon: UsersIcon,
-      roles: [], // Accessible à tous
+      roles: [USER_ROLES.SUPER_ADMIN],
     },
     {
-      label: 'Personnels',
-      route: '/personnels',
-      icon: UsersIcon,
-      roles: [], // Accessible à tous
-    },
-    /*{
-      label: 'PRESTATAIRES',
-      route: '/providers',
-      icon: ProvidersIcon,
-      hasArrow: true,
-      roles: ['admin', 'manager'],
-    },
-    {
-      label: 'DOCUMENTS',
-      route: '/documents',
-      icon: DocumentsIcon,
-      roles: [], // Accessible à tous
-    },
-    {
-      label: 'LOGISTIQUE',
-      route: '/logistics',
-      icon: LogisticsIcon,
-      hasArrow: true,
-      submenu: [
-        {
-          label: 'Commandes',
-          route: '/logistics/commandes',
-          roles: [ 'admin', 'manager'],
-        },
-        {
-          label: 'Fournisseurs',
-          route: '/logistics/fournisseurs',
-          roles: ['admin', 'manager'],
-        },
-        {
-          label: 'Transporteurs',
-          route: '/logistics/transporteurs',
-          roles: ['admin', 'manager'],
-        },
-        {
-          label: 'Types Transport',
-          route: '/logistics/type-transport',
-          roles: ['admin', 'manager'],
-        },
-      ],
-      roles: ['admin', 'manager'],
-    },*/
-    {
-      label: 'PARAMETRES',
-      route: '/settings',
+      label: 'Paramètres',
+      route: '/parametres',
       icon: SettingsIcon,
-      hasArrow: true,
-      submenu: [
-        {
-          label: 'Globals',
-          route: '/parametres',
-        },
-        // {
-        //   label: 'Utilisateurs',
-        //   route: '/settings/users',
-        // },
-        {
-          label: 'Domaines',
-          route: '/settings/domaines',
-        },
-        {
-          label: 'Type de Transport',
-          route: '/settings/type-transport',
-        },
-        {
-          label: 'Régions',
-          route: '/settings/regions',
-        },
-      ],
+      roles: [USER_ROLES.SUPER_ADMIN],
+    },
+    {
+      label: 'Ventes',
+      route: '/ventes',
+      icon: RevenueIcon,
+      roles: [USER_ROLES.OWNER],
+    },
+    {
+      label: 'Additions',
+      route: '/additions',
+      icon: OrdersIcon,
+      roles: [USER_ROLES.OWNER],
     },
   ];
 

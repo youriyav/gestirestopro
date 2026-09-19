@@ -13,6 +13,7 @@ import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { SidebarService } from '@app/core/services/sidebar.service';
+import { AuthService } from '@app/core/services/auth.service';
 
 
 
@@ -36,43 +37,39 @@ interface BreadcrumbItem {
 export class HeaderComponent  {
   private readonly router = inject(Router);
   private readonly sidebarService = inject(SidebarService);
+  readonly authService = inject(AuthService);
   private routerSubscription?: Subscription;
   private notificationRefreshSubscription?: Subscription;
 
-  // User info from auth service
-  // readonly user = this.authService.user;
-  // readonly userName = this.authService.userName;
-  // readonly userEmail = this.authService.userEmail;
-  readonly userEmail=signal('liye')
+  readonly userEmail = computed(() => this.authService.currentUser()?.email ?? '');
 
   // UI state
   showLanguageMenu = signal(false);
   showNotificationsMenu = signal(false);
-  showUserMenu = signal(false); 
+  showUserMenu = signal(false);
 
   // Computed values
   userDisplayName = computed(() => {
-   /* const user = this.user();
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName} ${user.lastName}`;
+    const user = this.authService.currentUser();
+    if (user?.first_name && user?.last_name) {
+      return `${user.first_name} ${user.last_name}`;
     }
-    return this.userName() || 'Utilisateur';*/
+    return user?.first_name || user?.email || 'Utilisateur';
   });
 
   userRole = computed(() => {
-    // TODO: Get role from user data or from a separate service
-    // For now, return a default role
-    return 'Admin';
+    const role = this.authService.currentUser()?.role;
+    return role === 'super_admin' ? 'Super Admin' : (role ?? '');
   });
 
   userInitials = computed(() => {
-   /* const name = this.userDisplayName();
+    const name = this.userDisplayName();
     if (!name) return 'U';
     const parts = name.split(' ');
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
-    return name.charAt(0).toUpperCase();*/
+    return name.charAt(0).toUpperCase();
   });
 
   // Notifications
@@ -244,7 +241,7 @@ export class HeaderComponent  {
   }
 
   onLogout() {
-    //this.authService.logout();
+    this.authService.logout();
   }
 
   navigateToOverview() {

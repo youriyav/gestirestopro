@@ -1,0 +1,48 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="mb-6">
+    <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Paramètres</h1>
+    <p class="text-sm text-menu-ink-soft">Informations du restaurant</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="bg-white rounded-2xl border border-menu-cream-2 p-6 max-w-md flex flex-col gap-4">
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-menu-ink">Logo</label>
+      <div class="flex items-center gap-4">
+        @if (logoPreviewUrl()) {
+          <img [src]="logoPreviewUrl()" alt="Logo du restaurant" class="w-16 h-16 rounded-full object-cover border border-menu-cream-2" />
+        } @else {
+          <div class="w-16 h-16 rounded-full bg-menu-cream-2 flex items-center justify-center text-menu-ink-soft text-xs" aria-hidden="true">
+            Logo
+          </div>
+        }
+        <label class="cursor-pointer text-sm font-medium text-menu-saffron hover:text-menu-saffron-deep">
+          Changer le logo
+          <input type="file" accept="image/*" class="hidden" (change)="onLogoSelected($event)" />
+        </label>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-menu-ink">Nom du restaurant</label>
+      <input formControlName="name" class="p-3 rounded-xl border border-menu-cream-2" />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-menu-ink">Ville</label>
+      <input formControlName="city" class="p-3 rounded-xl border border-menu-cream-2" />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-menu-ink">Adresse</label>
+      <input formControlName="address" class="p-3 rounded-xl border border-menu-cream-2" />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-menu-ink">Numéro</label>
+      <input formControlName="phone" type="tel" class="p-3 rounded-xl border border-menu-cream-2" />
+    </div>
+    <button
+      type="submit"
+      [disabled]="isSaving() || form.invalid"
+      class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+    >
+      {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+    </button>
+  </form>
+</div>

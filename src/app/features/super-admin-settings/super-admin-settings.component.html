@@ -1,0 +1,17 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="mb-6">
+    <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Paramètres</h1>
+    <p class="text-sm text-menu-ink-soft">Votre compte Super Admin</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-menu-cream-2 p-6 max-w-md">
+    <p class="text-sm text-menu-ink-soft mb-1">Nom</p>
+    <p class="text-menu-ink font-semibold mb-4">
+      {{ authService.currentUser()?.first_name }} {{ authService.currentUser()?.last_name }}
+    </p>
+    <p class="text-sm text-menu-ink-soft mb-1">Email</p>
+    <p class="text-menu-ink font-semibold mb-4">{{ authService.currentUser()?.email }}</p>
+    <p class="text-sm text-menu-ink-soft mb-1">Rôle</p>
+    <p class="text-menu-ink font-semibold">Super Admin</p>
+  </div>
+</div>

@@ -1,19 +1,19 @@
 import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { PrimaryButton } from '@app/components/ui/buttons/primary-button/primary-button.component';
 import { ForgetPasswordComponent } from '@features/auth/forget-password/forget-password.component';
 import { AuthService } from '@app/core/services/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [PrimaryButton, ForgetPasswordComponent, ReactiveFormsModule, CommonModule],
+  imports: [ForgetPasswordComponent, ReactiveFormsModule, CommonModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
 export class Login {
   showForgotPasswordModal = signal(false);
+  showPassword = signal(false);
   loginForm: FormGroup;
   errorMessage = signal<string | null>(null);
   returnUrl: string = '/dashboard';
@@ -26,14 +26,19 @@ export class Login {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      rememberMe: [false]
     });
 
     // Get return url from route parameters or default to '/dashboard'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
   }
 
-  handleLogin(event: MouseEvent) {
+  togglePasswordVisibility(): void {
+    this.showPassword.set(!this.showPassword());
+  }
+
+  handleLogin(event: Event) {
     event.preventDefault();
     event.stopPropagation();
 

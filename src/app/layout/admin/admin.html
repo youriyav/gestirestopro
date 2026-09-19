@@ -8,60 +8,84 @@
   </div>
 } @else {
   <!-- Main Content -->
-  <div class="flex h-screen overflow-hidden" style="background-color: #e6ebf0">
-    <!-- Overlay pour mobile/tablette -->
-    @if (sidebarOpen()) {
-    <div
-      class="fixed inset-0 bg-black/50 z-40 lg:hidden"
-      (click)="closeSidebar()"
-    ></div>
+  <div class="h-screen flex flex-col overflow-hidden">
+    <!-- Bandeau d'impersonation -->
+    @if (authService.isImpersonating()) {
+      <div class="h-10 shrink-0 z-[60] bg-menu-amber text-white flex items-center justify-between px-4 font-menu-body text-sm">
+        <span>
+          Vous visualisez le compte de <strong>{{ authService.impersonatedRestaurant()?.name }}</strong>
+          en tant qu'administrateur GestiRestoPro.
+        </span>
+        <button
+          type="button"
+          (click)="quitImpersonation()"
+          class="shrink-0 font-semibold bg-menu-ink hover:bg-black text-white px-3 py-1 rounded-full transition-colors"
+        >
+          Quitter cette vue
+        </button>
+      </div>
     }
 
-    <!-- Bouton hamburger pour mobile/tablette -->
-    <button
-      (click)="toggleSidebar()"
-      class="fixed top-2 left-2 z-[50] lg:hidden p-2 text-white rounded-lg transition-colors crud-menu-button"
-      [style.background-color]="'var(--crud-button-bg)'"
-      aria-label="Toggle sidebar"
-    >
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+    <div class="flex flex-1 overflow-hidden" style="background-color: #e6ebf0">
+      <!-- Overlay pour mobile/tablette -->
+      @if (sidebarOpen()) {
+      <div
+        class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+        (click)="closeSidebar()"
+      ></div>
+      }
+
+      <!-- Bouton hamburger pour mobile/tablette -->
+      <button
+        (click)="toggleSidebar()"
+        class="fixed top-2 left-2 z-[50] lg:hidden p-2 text-white rounded-lg transition-colors crud-menu-button"
+        [style.background-color]="'var(--crud-button-bg)'"
+        aria-label="Toggle sidebar"
       >
-        <path
-          d="M3 12H21M3 6H21M3 18H21"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </button>
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M3 12H21M3 6H21M3 18H21"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
 
-    <!-- Sidebar à gauche - Responsive -->
-    <app-sidebar-component
-      [isOpen]="sidebarOpen()"
-      (closeSidebar)="closeSidebar()"
-    ></app-sidebar-component>
+      <!-- Sidebar à gauche - Responsive : bascule selon le mode impersonation -->
+      @if (authService.isImpersonating()) {
+        <app-impersonation-sidebar
+          [isOpen]="sidebarOpen()"
+          (closeSidebar)="closeSidebar()"
+        ></app-impersonation-sidebar>
+      } @else {
+        <app-sidebar-component
+          [isOpen]="sidebarOpen()"
+          (closeSidebar)="closeSidebar()"
+        ></app-sidebar-component>
+      }
 
-    <!-- Contenu dynamique à droite avec Header -->
-    <main
-      class="flex-1 flex flex-col overflow-hidden"
-      style="background-color: #e6ebf0"
-    >
-      <!-- Header - Positionné après la sidebar -->
-      <app-header-component></app-header-component>
+      <!-- Contenu dynamique à droite avec Header -->
+      <main
+        class="flex-1 flex flex-col overflow-hidden"
+        style="background-color: #e6ebf0"
+      >
+        <!-- Header - Positionné après la sidebar -->
+        <app-header-component></app-header-component>
 
-      <!-- Contenu scrollable -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden pt-16">
-        <router-outlet></router-outlet>
-      </div>
-    </main>
-
-    <!-- Notification Component -->
-    <app-notification />
+        <!-- Contenu scrollable -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden pt-16">
+          <router-outlet></router-outlet>
+        </div>
+      </main>
+    </div>
   </div>
+  <app-toast-container />
 }

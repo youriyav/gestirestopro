@@ -5,4 +5,6 @@ export enum USER_ROLES {
   STAFF = 'staff',
   TRAINER = 'trainer',
   MEMBER = 'member',
+  SERVER = 'server',
+  CASHIER = 'cashier',
 }

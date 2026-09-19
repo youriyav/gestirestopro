@@ -1,0 +1,167 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Personnels</h1>
+      <p class="text-sm text-menu-ink-soft">Serveurs et caissiers de l'application mobile</p>
+    </div>
+    <button
+      type="button"
+      (click)="openCreate()"
+      class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors"
+    >
+      + Ajouter un personnel
+    </button>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-menu-cream-2 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-menu-ink-soft text-xs uppercase tracking-wide">
+            <th class="px-6 py-3 font-semibold">Nom</th>
+            <th class="px-6 py-3 font-semibold">Téléphone</th>
+            <th class="px-6 py-3 font-semibold">Rôle</th>
+            <th class="px-6 py-3 font-semibold">Statut</th>
+            <th class="px-6 py-3 font-semibold text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading()) {
+            <tr><td colspan="5" class="px-6 py-8 text-center text-menu-ink-soft">Chargement...</td></tr>
+          } @else if (members().length === 0) {
+            <tr><td colspan="5" class="px-6 py-8 text-center text-menu-ink-soft">Aucun membre pour le moment.</td></tr>
+          } @else {
+            @for (member of members(); track member.id) {
+              <tr class="border-t border-menu-cream-2">
+                <td class="px-6 py-4 text-menu-ink font-semibold">{{ member.first_name }} {{ member.last_name }}</td>
+                <td class="px-6 py-4 text-menu-ink-soft">{{ member.phone }}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-menu-cream-2 text-menu-ink-soft">
+                    {{ roleLabel(member.role) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    class="inline-block px-3 py-1 rounded-full text-xs font-semibold"
+                    [class.bg-menu-success-bg]="!!member.isActivate"
+                    [class.text-menu-success]="!!member.isActivate"
+                    [class.bg-menu-error-bg]="!member.isActivate"
+                    [class.text-menu-error]="!member.isActivate"
+                  >
+                    {{ member.isActivate ? 'Actif' : 'Inactif' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  @if (isManageable(member)) {
+                    <span class="inline-flex gap-2">
+                      <button type="button" (click)="openEdit(member)" title="Modifier" class="p-1 text-menu-saffron hover:text-menu-saffron-deep">
+                        <app-pencil-icon />
+                      </button>
+                      <button
+                        type="button"
+                        (click)="toggleActive(member)"
+                        [title]="member.isActivate ? 'Désactiver' : 'Activer'"
+                        class="p-1"
+                        [class.text-menu-ink-soft]="member.isActivate"
+                        [class.hover:text-menu-ink]="member.isActivate"
+                        [class.text-menu-success]="!member.isActivate"
+                      >
+                        <app-power-icon />
+                      </button>
+                      <button type="button" (click)="requestDelete(member)" title="Supprimer" class="p-1 text-menu-error hover:text-menu-error">
+                        <app-trash-icon />
+                      </button>
+                      <button type="button" (click)="reveal(member)" title="Afficher le code" class="p-1 text-menu-ink-soft hover:text-menu-ink">
+                        <app-eye-icon />
+                      </button>
+                    </span>
+                  } @else {
+                    <span class="text-menu-ink-soft">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Dialogue ajout / modification -->
+@if (dialogMode()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" (click)="closeDialog()">
+    <div
+      class="bg-white rounded-2xl shadow-xl w-full max-w-lg font-menu-body"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2">
+        <h3 class="font-menu-heading font-bold text-lg text-menu-ink">
+          {{ dialogMode() === 'edit' ? 'Modifier le personnel' : 'Nouveau personnel' }}
+        </h3>
+        <button type="button" (click)="closeDialog()" class="text-menu-ink-soft hover:text-menu-ink text-2xl leading-none px-1" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Prénom</label>
+            <input formControlName="first_name" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Awa" />
+            @if (form.get('first_name')?.invalid && form.get('first_name')?.touched) {
+              <p class="text-xs text-menu-error">Ce champ est obligatoire.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Nom</label>
+            <input formControlName="last_name" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Traoré" />
+            @if (form.get('last_name')?.invalid && form.get('last_name')?.touched) {
+              <p class="text-xs text-menu-error">Ce champ est obligatoire.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Téléphone</label>
+            <input formControlName="phone" class="p-3 rounded-xl border border-menu-cream-2" placeholder="+225 07 00 00 00 00" />
+            @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
+              <p class="text-xs text-menu-error">Ce champ est obligatoire.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-medium text-menu-ink">Rôle</label>
+            <select formControlName="role" class="p-3 rounded-xl border border-menu-cream-2 bg-white">
+              <option [value]="USER_ROLES.SERVER">Serveur</option>
+              <option [value]="USER_ROLES.CASHIER">Caissier</option>
+            </select>
+          </div>
+        </div>
+        <p class="px-6 pb-2 text-xs text-menu-ink-soft">
+          @if (dialogMode() === 'create') {
+            Un code d'accès à 4 chiffres est généré automatiquement à la création — il sera affiché juste après, et à tout moment via l'action "Afficher".
+          } @else {
+            Le code d'accès reste inchangé lors d'une modification.
+          }
+        </p>
+        <div class="flex items-center gap-3 px-6 py-4 border-t border-menu-cream-2">
+          <span class="flex-1"></span>
+          <button type="button" (click)="closeDialog()" class="px-4 py-2 text-menu-ink-soft hover:text-menu-ink">Annuler</button>
+          <button
+            type="submit"
+            [disabled]="isSaving()"
+            class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+          >
+            {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<app-delete-confirmation-modal
+  [isOpen]="!!pendingDelete()"
+  title="Supprimer le personnel"
+  [message]="'Voulez-vous vraiment supprimer « ' + (pendingDelete()?.first_name ?? '') + ' ' + (pendingDelete()?.last_name ?? '') + ' » ?'"
+  [isDeleting]="isDeleting()"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()"
+/>

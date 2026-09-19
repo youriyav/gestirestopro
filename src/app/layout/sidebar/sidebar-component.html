@@ -1,8 +1,8 @@
 <aside
-  class="fixed lg:static h-screen flex flex-col 
-  text-white overflow-y-auto  z-50 transform 
-  transition-all duration-300 ease-in-out 
-  -translate-x-full lg:translate-x-0 bg-primary"
+  class="fixed lg:static h-screen flex flex-col
+  text-white overflow-y-auto  z-50 transform
+  transition-all duration-300 ease-in-out
+  -translate-x-full lg:translate-x-0 bg-menu-ink font-menu-body"
   [class.translate-x-0]="isOpen()"
   [class.-translate-x-full]="!isOpen()"
   [class.w-64]="!isCollapsed()"
@@ -66,21 +66,16 @@
 
   <!-- Logo Section -->
   <div
-    class="pt-12.5 pb-10 flex justify-center
-     border-b transition-all duration-300"
-    
+    class="pt-8 pb-6 flex items-center justify-center gap-2
+     border-b border-white/10 transition-all duration-300"
     [class.opacity-0]="isCollapsed()"
     [class.invisible]="isCollapsed()"
     [class.h-0]="isCollapsed()"
     [class.pt-0]="isCollapsed()"
     [class.pb-0]="isCollapsed()"
   >
-    <img
-      src="/assets/img/gym-logo.jpg"
-      alt="gym-logo"
-      class="h-[105px]  transition-all duration-300"
-      [class.h-0]="isCollapsed()"
-    />
+    <img src="assets/img/logo.png" alt="GestiRestoPro" class="w-8 h-8 object-contain shrink-0" />
+    <span class="font-menu-heading font-extrabold text-lg text-white">GestiRestoPro</span>
   </div>
 
   <!-- Navigation Menu -->
@@ -90,10 +85,9 @@
       <li>
         <a
           [routerLink]="item.submenu ? null : item.route"
-          [routerLinkActive]="item.submenu ? '' : 'bg-white/10'"
-          [routerLinkActiveOptions]="{exact: true}"
-          [class.text-[#C8997E]]="isActiveRoute(item.route)"
-          [class.text-gray-300]="!isActiveRoute(item.route)"
+          [class.bg-menu-saffron]="isActiveRoute(item.route)"
+          [class.text-white]="isActiveRoute(item.route)"
+          [class.text-menu-cream-2]="!isActiveRoute(item.route)"
           class="flex items-center justify-between px-4 py-3 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
           (click)="item.submenu ? toggleSubmenu(item.label, $event) : onLinkClick()"
           [class.justify-center]="isCollapsed()"
@@ -155,28 +149,26 @@
 
   <!-- User Profile Section -->
   <div
-    class="p-4 border-t transition-all duration-300"
-    [style.border-color]="'var(--sidebar-border)'"
+    class="p-4 border-t border-white/10 transition-all duration-300"
   >
     <div
-      class="flex items-center 
-      justify-between px-4 py-3 
-      rounded-lg hover:bg-white/5 
-      transition-colors 
+      class="flex items-center
+      justify-between px-4 py-3
+      rounded-lg hover:bg-white/5
+      transition-colors
       hover:cursor-pointer
-      
+
       "
       [class.justify-center]="isCollapsed()"
       role="button"
       tabindex="0"
       (click)="onLogout()"
     >
-      <div class="flex items-center gap-3" 
+      <div class="flex items-center gap-3"
       [class.gap-0]="isCollapsed()">
         <div
           class="w-10 h-10 rounded-full flex items-center justify-center
-           shrink-0"
-          [style.background-color]="'var(--sidebar-accent)'"
+           shrink-0 bg-menu-cassis"
         >
           <span class="text-white font-semibold text-sm"
             >{{ getUserInitials() }}</span

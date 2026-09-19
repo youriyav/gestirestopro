@@ -1,0 +1,66 @@
+<div class="p-6 lg:p-8 font-menu-body bg-menu-cream min-h-full">
+  <div class="mb-6">
+    <h1 class="font-menu-heading text-2xl font-bold text-menu-ink">Vue d'ensemble</h1>
+    <p class="text-sm text-menu-ink-soft">Back-office GestiRestoPro</p>
+  </div>
+
+  <!-- Cartes métriques -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5">
+      <p class="text-sm text-menu-ink-soft mb-2">Restaurants actifs</p>
+      <p class="font-menu-mono text-3xl font-bold text-menu-ink mb-2">{{ activeCount() }}</p>
+      <span class="inline-block text-xs font-medium bg-menu-success-bg text-menu-success px-2 py-0.5 rounded-full">+{{ newRestaurantsThisMonth() }} ce mois</span>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5">
+      <p class="text-sm text-menu-ink-soft mb-2">Revenu récurrent mensuel</p>
+      <p class="font-menu-mono text-3xl font-bold text-menu-ink mb-2">{{ totalMrr() | number:'1.0-0':'fr' }} F</p>
+      <span class="inline-block text-xs font-medium bg-menu-trial-bg text-menu-trial px-2 py-0.5 rounded-full">{{ trialCount() }} en essai</span>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5">
+      <p class="text-sm text-menu-ink-soft mb-2">Nouveaux prospects (7j)</p>
+      <p class="font-menu-mono text-3xl font-bold text-menu-ink mb-2">{{ newProspectsLast7Days() }}</p>
+      <span
+        class="inline-block text-xs font-medium px-2 py-0.5 rounded-full"
+        [class.bg-menu-success-bg]="prospectsTrend() === 'up'"
+        [class.text-menu-success]="prospectsTrend() === 'up'"
+        [class.bg-menu-error-bg]="prospectsTrend() === 'down'"
+        [class.text-menu-error]="prospectsTrend() === 'down'"
+        [class.bg-menu-cream-2]="prospectsTrend() === 'stable'"
+        [class.text-menu-ink-soft]="prospectsTrend() === 'stable'"
+      >{{ prospectsTrend() === 'up' ? 'En hausse' : prospectsTrend() === 'down' ? 'En baisse' : 'Stable' }}</span>
+    </div>
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5">
+      <p class="text-sm text-menu-ink-soft mb-2">Conversion essai → payant</p>
+      <p class="font-menu-mono text-3xl font-bold text-menu-ink mb-2">{{ conversionRate() }} %</p>
+      <span class="inline-block text-xs font-medium bg-menu-cream-2 text-menu-ink-soft px-2 py-0.5 rounded-full">Ratio instantané</span>
+    </div>
+  </div>
+
+  <!-- Contenu principal : table + prospects récents -->
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+    <app-restaurants-table />
+
+    <div class="bg-white rounded-2xl border border-menu-cream-2 p-5">
+      <h2 class="font-menu-heading text-lg font-bold text-menu-ink mb-4">Prospects récents</h2>
+      <div class="flex flex-col gap-4">
+        @for (prospect of recentProspects().slice(0, 4); track prospect.id) {
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="font-semibold text-menu-ink text-sm truncate">{{ prospect.restaurantName }}</p>
+              <p class="text-xs text-menu-ink-soft truncate">{{ prospect.contactName }}</p>
+              <span class="inline-block mt-1 text-[11px] font-medium bg-menu-cream-2 text-menu-ink-soft px-2 py-0.5 rounded-full">
+                {{ planLabel(prospect.desiredPlan) }}
+              </span>
+            </div>
+            <span class="text-xs text-menu-ink-soft whitespace-nowrap shrink-0">{{ relativeTime(prospect.createdAt) }}</span>
+          </div>
+        } @empty {
+          <p class="text-sm text-menu-ink-soft">Aucun prospect pour le moment.</p>
+        }
+      </div>
+      <a routerLink="/prospects" class="block text-center mt-5 text-sm font-semibold text-menu-saffron-deep hover:underline">
+        Voir tous les prospects
+      </a>
+    </div>
+  </div>
+</div>
