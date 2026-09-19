@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://gestirestopro.ec-innov.com'
+  apiUrl: 'https://gestirestoproapi.ec-innov.com'
 };
