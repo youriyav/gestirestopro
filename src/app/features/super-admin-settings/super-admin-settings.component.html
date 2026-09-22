@@ -14,4 +14,30 @@
     <p class="text-sm text-menu-ink-soft mb-1">Rôle</p>
     <p class="text-menu-ink font-semibold">Super Admin</p>
   </div>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    class="bg-white rounded-2xl border border-menu-cream-2 p-6 max-w-md mt-6 flex flex-col gap-1.5"
+  >
+    <p class="text-sm text-menu-ink-soft mb-1">Réglages globaux</p>
+    <label class="text-sm font-medium text-menu-ink" for="whatsappNumber">Numéro WhatsApp commercial</label>
+    <input
+      id="whatsappNumber"
+      formControlName="whatsappNumber"
+      type="text"
+      placeholder="221778399425"
+      class="p-3 rounded-xl border border-menu-cream-2 focus:outline-none focus:ring-2 focus:ring-menu-saffron"
+    />
+    <p class="text-xs text-menu-ink-soft mb-2">
+      Format international sans "+" ni "00", ex : 221778399425. Utilisé pour le lien WhatsApp de la landing page.
+    </p>
+    <button
+      type="submit"
+      [disabled]="isSaving() || form.invalid"
+      class="self-start font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep px-5 py-2.5 rounded-full transition-colors disabled:opacity-60"
+    >
+      {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+    </button>
+  </form>
 </div>
