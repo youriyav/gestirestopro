@@ -155,6 +155,10 @@
             <label class="text-sm font-medium text-menu-ink">Adresse</label>
             <input formControlName="address" class="p-3 rounded-xl border border-menu-cream-2" placeholder="12 Avenue de l'Indépendance" />
           </div>
+          <div class="flex flex-col gap-1.5 sm:col-span-2">
+            <label class="text-sm font-medium text-menu-ink">Horaires</label>
+            <input formControlName="hours" class="p-3 rounded-xl border border-menu-cream-2" placeholder="Lun-Dim : 08h-22h" />
+          </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-sm font-medium text-menu-ink">Formule</label>
             @if (dialogMode() === 'edit') {

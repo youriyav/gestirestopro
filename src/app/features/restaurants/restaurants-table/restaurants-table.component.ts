@@ -63,6 +63,7 @@ export class RestaurantsTableComponent implements OnInit {
     city: ['Bangui'],
     address: [''],
     phone: [''],
+    hours: [''],
     plan: ['essentiel', [Validators.required]],
     status: ['trial', [Validators.required]],
   });
@@ -162,6 +163,7 @@ export class RestaurantsTableComponent implements OnInit {
       city: restaurant.city,
       address: restaurant.address ?? '',
       phone: restaurant.phone ?? '',
+      hours: restaurant.hours ?? '',
       plan: restaurant.plan,
       status: restaurant.status,
     });

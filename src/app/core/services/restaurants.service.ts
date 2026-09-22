@@ -19,6 +19,7 @@ export interface Restaurant {
   createdAt: string;
   address?: string;
   phone?: string;
+  hours?: string;
   logoUrl?: string;
 }
 
@@ -30,6 +31,7 @@ export interface UpdateRestaurantDto {
   status?: RestaurantStatus;
   address?: string;
   phone?: string;
+  hours?: string;
 }
 
 export interface CreateRestaurantDto {
@@ -38,6 +40,7 @@ export interface CreateRestaurantDto {
   city?: string;
   address?: string;
   phone?: string;
+  hours?: string;
   plan?: RestaurantPlan;
   status?: RestaurantStatus;
 }
