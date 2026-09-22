@@ -79,6 +79,11 @@
                     Se connecter en tant que
                   </button>
                   <span class="inline-flex gap-1">
+                    <button type="button" (click)="openQr(restaurant)" title="QR code du menu" class="p-1 text-menu-nile hover:text-menu-ink">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm11 0h1v1h-1v-1zm0 3h1v1h-1v-1zm3-3h1v1h-1v-1zm0 3h1v1h-1v-1zm-3 3h4v-1h-4v1z"/>
+                      </svg>
+                    </button>
                     <button type="button" (click)="openEdit(restaurant)" title="Modifier" class="p-1 text-menu-saffron hover:text-menu-saffron-deep">
                       <app-pencil-icon />
                     </button>
@@ -205,4 +210,11 @@
   [isDeleting]="isDeleting()"
   (confirm)="confirmDelete()"
   (cancel)="cancelDelete()"
+/>
+
+<app-qr-code-modal
+  [isOpen]="!!qrRestaurant()"
+  [restaurantName]="qrRestaurant()?.name ?? ''"
+  [slug]="qrRestaurant()?.slug ?? ''"
+  (close)="closeQr()"
 />

@@ -1,0 +1,39 @@
+@if (isOpen()) {
+  <div
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+    (click)="onBackdropClick($event)"
+  >
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm font-menu-body" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-menu-cream-2">
+        <h3 class="font-menu-heading font-bold text-lg text-menu-ink">QR code du menu</h3>
+        <button type="button" (click)="onClose()" class="text-menu-ink-soft hover:text-menu-ink text-2xl leading-none px-1" aria-label="Fermer">
+          ×
+        </button>
+      </div>
+
+      <div class="p-6 flex flex-col items-center gap-4">
+        <p class="text-sm font-semibold text-menu-ink text-center">{{ restaurantName() }}</p>
+
+        @if (dataUrl()) {
+          <img [src]="dataUrl()" alt="QR code du menu" class="w-56 h-56 rounded-xl border border-menu-cream-2" />
+        } @else {
+          <div class="w-56 h-56 rounded-xl border border-menu-cream-2 flex items-center justify-center text-menu-ink-soft text-sm">
+            Génération…
+          </div>
+        }
+
+        <p class="text-xs text-menu-ink-soft text-center break-all">{{ url() }}</p>
+
+        @if (dataUrl()) {
+          <a
+            [href]="dataUrl()!"
+            [download]="'qr-menu-' + slug() + '.png'"
+            class="font-semibold text-white bg-menu-saffron hover:bg-menu-saffron-deep transition-colors px-5 py-2.5 rounded-full text-sm"
+          >
+            Télécharger le QR code
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+}

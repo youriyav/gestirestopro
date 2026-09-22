@@ -6,6 +6,7 @@ import { RestaurantsService, Restaurant } from '@app/core/services/restaurants.s
 import { AuthService } from '@app/core/services/auth.service';
 import { ToastService } from '@app/shared/services/toast.service';
 import { ImpersonateConfirmModal } from '../impersonate-confirm-modal/impersonate-confirm-modal.component';
+import { QrCodeModal } from '../qr-code-modal/qr-code-modal.component';
 import { PencilIcon } from '@app/components/ui/icons/pencil/pencil.icon';
 import { PowerIcon } from '@app/components/ui/icons/power/power.icon';
 import { TrashIcon } from '@app/components/ui/icons/trash/trash.icon';
@@ -31,6 +32,7 @@ function slugify(value: string): string {
     PowerIcon,
     TrashIcon,
     DeleteConfirmationModal,
+    QrCodeModal,
   ],
   templateUrl: './restaurants-table.component.html',
   styleUrl: './restaurants-table.component.css',
@@ -56,6 +58,8 @@ export class RestaurantsTableComponent implements OnInit {
 
   pendingDelete = signal<Restaurant | null>(null);
   isDeleting = signal<boolean>(false);
+
+  qrRestaurant = signal<Restaurant | null>(null);
 
   form: FormGroup = this.fb.group({
     name: ['', [Validators.required]],
@@ -231,6 +235,16 @@ export class RestaurantsTableComponent implements OnInit {
         this.toastService.error('Impossible de modifier le statut de ce restaurant.');
       },
     });
+  }
+
+  // ----- QR code -----
+
+  openQr(restaurant: Restaurant): void {
+    this.qrRestaurant.set(restaurant);
+  }
+
+  closeQr(): void {
+    this.qrRestaurant.set(null);
   }
 
   // ----- Suppression -----
